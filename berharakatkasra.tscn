@@ -1,0 +1,436 @@
+[gd_scene format=3 uid="uid://ten1iln6duti"]
+
+[ext_resource type="Texture2D" uid="uid://dqkkd0fp2rpt7" path="res://asset/BG2.png" id="1_rihjd"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="2_md44s"]
+[ext_resource type="Texture2D" uid="uid://cqldsfx6xq85l" path="res://asset/papanmain.png" id="3_md44s"]
+[ext_resource type="Texture2D" uid="uid://tvnshryhjiw5" path="res://asset/tombolsendiri.png" id="4_hkmro"]
+[ext_resource type="Texture2D" uid="uid://3uryl3wapna1" path="res://asset/tombolauto.png" id="5_sj18b"]
+[ext_resource type="Texture2D" uid="uid://m3cdpoxqx0w1" path="res://asset/tombollanjut.png" id="6_n0cnk"]
+[ext_resource type="Texture2D" uid="uid://clbuymbnky3g8" path="res://asset/tombollanjut2.png" id="7_qtg2h"]
+[ext_resource type="Texture2D" uid="uid://4k7gffr1n7o2" path="res://asset/tombolbersama.png" id="8_qtg2h"]
+
+[sub_resource type="GDScript" id="GDScript_n0cnk"]
+resource_name = "kasrah"
+script/source = "extends Control
+
+@onready var container_semua = $papanmateri/container_huruf
+@onready var container_satu = $papanmateri/center_satu/container_satu
+@onready var center_satu = $papanmateri/center_satu
+@onready var tombol_mode = $tombolsendiri
+@onready var tombol_auto = $auto
+@onready var audio_sapa = $audiosapa
+
+var daftar_audio = []
+@onready var player = AudioStreamPlayer.new()
+
+# =========================
+# DATA
+# =========================
+var daftar_huruf = []
+var index = 0
+var mode = 0 # 0 = satu huruf, 1 = semua huruf
+
+# =========================
+# AUTO PLAY
+# =========================
+var auto_jalan = false
+var durasi_audio_sekarang = 1.0
+var jeda = 0.5 # jeda antar huruf (biar enak dibaca anak)
+
+# =========================
+# LOAD AUDIO
+# =========================
+func load_audio():
+	for i in range(1, 29):
+		var path = \"res://audiokasroh/\" + str(i) + \".mp3\"
+		var audio = load(path)
+		
+		if audio:
+			daftar_audio.append(audio)
+		else:
+			print(\"GAGAL LOAD AUDIO:\", path)
+
+# =========================
+# PUTAR AUDIO + ANIMASI
+# =========================
+func putar_audio(i, huruf_node = null):
+	if i < daftar_audio.size():
+		player.stop()
+		player.stream = daftar_audio[i]
+		player.play()
+		
+		durasi_audio_sekarang = player.stream.get_length()
+		
+		if huruf_node != null:
+			animasi_huruf(huruf_node, durasi_audio_sekarang)
+
+# =========================
+# LOAD HURUF
+# =========================
+func load_huruf():
+	for i in range(1, 29):
+		var path = \"res://kasrah/\" + str(i) + \".png\"
+		var tex = load(path)
+		
+		if tex:
+			daftar_huruf.append(tex)
+		else:
+			print(\"GAGAL LOAD:\", path)
+
+# =========================
+func _ready():
+	load_huruf()
+	load_audio()
+	add_child(player)
+	
+		# suara pembuka
+	audio_sapa.volume_db = 5
+
+	# suara huruf
+	player.volume_db = 8
+	
+		# kecilkan musik background
+	MusikManager.set_volume(-30)
+
+	# besarkan audio huruf
+	player.volume_db = 8
+	
+	await putar_audio_pembuka()
+	await get_tree().process_frame
+	tampil_satu()
+
+# =========================
+# MODE 1 (SATU)
+# =========================
+func tampil_satu():
+	container_semua.hide()
+	center_satu.show()
+
+	hapus_semua_satu()
+
+	var tex = TextureRect.new()
+	tex.texture = daftar_huruf[index]
+
+	tex.custom_minimum_size = Vector2(1200, 1200)
+	tex.expand = true
+	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	# CENTER
+	tex.anchor_left = 0.5
+	tex.anchor_top = 0.5
+	tex.anchor_right = 0.5
+	tex.anchor_bottom = 0.5
+
+	tex.offset_left = -500
+	tex.offset_top = -580
+	tex.offset_right = 500
+	tex.offset_bottom = 420
+
+	container_satu.add_child(tex)
+
+	# AUDIO + ANIMASI
+	putar_audio(index, tex)
+
+# =========================
+# MODE 2 (SEMUA)
+# =========================
+func tampil_semua():
+	center_satu.hide()
+	container_semua.show()
+
+	hapus_semua_semua()
+
+	container_semua.columns = 5
+
+	for i in range(daftar_huruf.size()):
+		var btn = Button.new()
+		btn.custom_minimum_size = Vector2(110, 110)
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+		var img = TextureRect.new()
+		img.texture = daftar_huruf[i]
+		img.expand = true
+		img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		img.anchor_right = 1
+		img.anchor_bottom = 1
+
+		btn.add_child(img)
+		var idx = i
+		
+		btn.pressed.connect(func():
+			index = idx
+			mode = 0
+			
+			tampil_satu()
+			
+			# tunggu sesuai audio
+			await get_tree().create_timer(durasi_audio_sekarang + 0.2).timeout
+			
+			mode = 1
+			tampil_semua()
+		)
+		
+		container_semua.add_child(btn)
+
+# =========================
+# TOGGLE MODE
+# =========================
+func _on_tombolsendiri_pressed():
+	# MATIKAN AUTO SAAT GANTI MODE
+	auto_jalan = false
+	mode = 1 - mode
+
+	if mode == 0:
+		tampil_satu()
+		$tombollanjut.show()
+		$tombollanjut2.show()
+	else:
+		tampil_semua()
+		$tombollanjut.hide()
+		$tombollanjut2.hide()
+
+	if tombol_mode:
+		tombol_mode.update_icon(mode)
+
+# =========================
+# AUTO PLAY CERDAS (IKUT AUDIO)
+# =========================
+func _on_auto_pressed():
+	auto_jalan = !auto_jalan
+	
+	if auto_jalan:
+		auto_loop()
+
+func auto_loop():
+	while auto_jalan:
+		tampil_satu()
+		
+		await get_tree().create_timer(durasi_audio_sekarang + jeda).timeout
+		
+		index += 1
+		if index >= daftar_huruf.size():
+			index = 0
+
+# =========================
+# HAPUS
+# =========================
+func hapus_semua_satu():
+	for child in container_satu.get_children():
+		child.queue_free()
+
+func hapus_semua_semua():
+	for child in container_semua.get_children():
+		child.queue_free()
+
+# =========================
+func set_mode(m):
+	mode = m
+	
+	if mode == 0:
+		tampil_satu()
+	else:
+		tampil_semua()
+
+# =========================
+# NAVIGASI
+# =========================
+func _on_btn_next_pressed():
+	if mode == 0:
+		index += 1
+		if index >= daftar_huruf.size():
+			index = 0
+		tampil_satu()
+
+func _on_btn_back_pressed():
+	if mode == 0:
+		index -= 1
+		if index < 0:
+			index = daftar_huruf.size() - 1
+		tampil_satu()
+
+func _on_tombollanjut_pressed():
+	_on_btn_next_pressed()
+
+func _on_tombollanjut_2_pressed():
+	_on_btn_back_pressed()
+
+func _on_kembali_pressed():
+	pass
+
+# =========================
+# ANIMASI (SINKRON AUDIO)
+# =========================
+func animasi_huruf(huruf, durasi):
+	if huruf == null:
+		return
+
+	huruf.scale = Vector2(0.9, 0.9)
+
+	var tween = create_tween()
+	var step = durasi / 4.0
+
+	tween.tween_property(huruf, \"scale\", Vector2(1.1, 1.1), step)
+	tween.tween_property(huruf, \"scale\", Vector2(1, 1), step)
+	tween.tween_property(huruf, \"scale\", Vector2(1.05, 1.05), step)
+	tween.tween_property(huruf, \"scale\", Vector2(1, 1), step)
+	
+func putar_audio_pembuka():
+
+	audio_sapa.stream = load(
+		\"res://audiosapaharakat/pembuka.mp3\"
+	)
+
+	audio_sapa.play()
+
+	await audio_sapa.finished
+
+	tampil_satu()
+"
+
+[sub_resource type="GDScript" id="GDScript_hkmro"]
+resource_name = "keluar"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://pilih_meteri_belajar.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_qtg2h"]
+resource_name = "tombolsendiri"
+script/source = "extends TextureButton
+
+@export var icon_tombolsendiri : Texture2D
+@export var icon_tombolsemua : Texture2D
+
+func _ready():
+	update_icon(0)
+
+func update_icon(mode):
+	if mode == 0:
+		texture_normal = icon_tombolsendiri
+	else:
+		texture_normal = icon_tombolsemua
+"
+
+[node name="berharakatkasra" type="Control" unique_id=1283076641]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_n0cnk")
+
+[node name="bg" type="TextureRect" parent="." unique_id=653739569]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_rihjd")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="btn_keluar" type="TextureButton" parent="." unique_id=116873832]
+layout_mode = 1
+offset_left = 412.00003
+offset_top = 36.0
+offset_right = 598.0
+offset_bottom = 198.0
+scale = Vector2(0.75, 0.75)
+texture_normal = ExtResource("2_md44s")
+script = SubResource("GDScript_hkmro")
+
+[node name="papanmateri" type="TextureRect" parent="." unique_id=443463591]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -513.0
+offset_top = -177.0
+offset_right = 2967.0
+offset_bottom = 1523.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("3_md44s")
+
+[node name="container_huruf" type="GridContainer" parent="papanmateri" unique_id=961568442]
+layout_direction = 3
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = 0.00036621094
+grow_horizontal = 2
+grow_vertical = 2
+columns = 4
+
+[node name="center_satu" type="CenterContainer" parent="papanmateri" unique_id=1737901933]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -0.00024414063
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="container_satu" type="Control" parent="papanmateri/center_satu" unique_id=1621257367]
+layout_mode = 2
+
+[node name="tombollanjut2" type="TextureButton" parent="." unique_id=1807453918]
+layout_mode = 1
+offset_left = 46.0
+offset_top = 371.0
+offset_right = 646.0
+offset_bottom = 860.0
+scale = Vector2(0.25, 0.25)
+texture_normal = ExtResource("7_qtg2h")
+
+[node name="tombollanjut" type="TextureButton" parent="." unique_id=591482980]
+layout_mode = 1
+offset_left = 1090.0
+offset_top = 371.0
+offset_right = 1690.0
+offset_bottom = 895.0
+scale = Vector2(0.25, 0.25)
+texture_normal = ExtResource("6_n0cnk")
+
+[node name="auto" type="TextureButton" parent="." unique_id=606367224]
+layout_mode = 1
+offset_left = 742.0
+offset_top = 48.000008
+offset_right = 1342.0
+offset_bottom = 299.0
+scale = Vector2(0.35, 0.35)
+texture_normal = ExtResource("5_sj18b")
+
+[node name="tombolsendiri" type="TextureButton" parent="." unique_id=1522626504]
+layout_mode = 1
+offset_left = 566.0001
+offset_top = 51.000008
+offset_right = 1166.0001
+offset_bottom = 415.0
+scale = Vector2(0.25, 0.25)
+texture_normal = ExtResource("4_hkmro")
+script = SubResource("GDScript_qtg2h")
+icon_tombolsendiri = ExtResource("4_hkmro")
+icon_tombolsemua = ExtResource("8_qtg2h")
+
+[node name="audiosapa" type="AudioStreamPlayer" parent="." unique_id=1869148905]
+
+[connection signal="pressed" from="tombollanjut2" to="." method="_on_tombollanjut_2_pressed"]
+[connection signal="pressed" from="tombollanjut" to="." method="_on_tombollanjut_pressed"]
+[connection signal="pressed" from="auto" to="." method="_on_auto_pressed"]
+[connection signal="pressed" from="tombolsendiri" to="." method="_on_tombolsendiri_pressed"]

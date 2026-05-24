@@ -1,0 +1,259 @@
+[gd_scene format=3 uid="uid://m02husp2lwcg"]
+
+[ext_resource type="Texture2D" uid="uid://dqkkd0fp2rpt7" path="res://asset/BG2.png" id="1_qdhuo"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="2_2dg7c"]
+[ext_resource type="Texture2D" uid="uid://cqldsfx6xq85l" path="res://asset/papanmain.png" id="3_2dg7c"]
+[ext_resource type="Texture2D" uid="uid://m3cdpoxqx0w1" path="res://asset/tombollanjut.png" id="4_bcytf"]
+[ext_resource type="Texture2D" uid="uid://clbuymbnky3g8" path="res://asset/tombollanjut2.png" id="5_ksffl"]
+[ext_resource type="Texture2D" uid="uid://ve7bvcmewdki" path="res://asset/sound_on.png" id="7_svlcp"]
+[ext_resource type="Texture2D" uid="uid://cb6hfnx8i4vmb" path="res://asset/sound_off.png" id="8_pca3g"]
+[ext_resource type="Texture2D" uid="uid://cd38b25o6o7wu" path="res://asset/juduldoa.png" id="8_svlcp"]
+
+[sub_resource type="GDScript" id="GDScript_ifkga"]
+resource_name = "doaharian"
+script/source = "extends Control
+
+@onready var gambar = $papandoaharian/gambardoa
+@onready var audio = $audio
+@onready var btn_audio = $btn_audio
+@onready var judul = $papandoaharian/judul_doa
+
+var index = 1
+var max_doa = 5
+var is_playing = false
+
+var nama_doa = [
+	\"Doa Kedua Orang Tua\",
+	\"Doa Sebelum Makan\",
+	\"Doa Sesudah Makan\",
+	\"Doa Sebelum Tidur\",
+    \"Doa Bangun Tidur\"
+]
+
+func _ready():
+	btn_audio.set_state(true)
+	tampilkan_doa()
+	
+	# paksa geser lebih atas
+	gambar.position = Vector2(gambar.position.x, gambar.position.y - 160)
+	
+	judul.position.y -= 40
+		# kecilkan musik background
+	MusikManager.set_volume(-27)
+
+	# besarkan suara doa
+	audio.volume_db = 15
+
+func tampilkan_doa():
+	var path_gambar = \"res://doa-doa/%d.png\" % index
+	if ResourceLoader.exists(path_gambar):
+		gambar.texture = load(path_gambar)
+
+	var path_audio = \"res://audio_doa/%d.mp3\" % index
+	if ResourceLoader.exists(path_audio):
+		audio.stream = load(path_audio)
+		audio.play()
+		is_playing = true
+		btn_audio.set_state(true)
+	
+	judul.text = nama_doa[index - 1]
+
+func _on_lanjut_pressed():
+	if index < max_doa:
+		index += 1
+		tampilkan_doa()
+
+func _on_back_pressed():
+	if index > 1:
+		index -= 1
+		tampilkan_doa()
+
+func _on_btn_audio_pressed():
+
+	# ulangi doa dari awal
+	audio.stop()
+	audio.play()
+
+	is_playing = true
+	btn_audio.set_state(true)
+
+func _on_audio_finished():
+	is_playing = false
+	btn_audio.set_state(false)
+"
+
+[sub_resource type="GDScript" id="GDScript_qdhuo"]
+resource_name = "keluar"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://halmateri.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_ksffl"]
+resource_name = "sound"
+script/source = "extends TextureButton
+
+@export var sound_on : Texture2D
+@export var sound_off : Texture2D
+
+var is_on = true
+
+func _ready():
+    update_icon()
+
+func toggle():
+    is_on = !is_on
+    update_icon()
+
+func set_state(state: bool):
+    is_on = state
+    update_icon()
+
+func update_icon():
+    if is_on:
+        texture_normal = sound_on
+    else:
+        texture_normal = sound_off
+"
+
+[node name="doaharian" type="Control" unique_id=1848257008]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_ifkga")
+
+[node name="bg" type="TextureRect" parent="." unique_id=640820346]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_qdhuo")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="btn_keluar" type="TextureButton" parent="." unique_id=930373058]
+layout_mode = 1
+offset_left = 49.000034
+offset_top = 2.9999995
+offset_right = 235.00003
+offset_bottom = 165.0
+scale = Vector2(0.7, 0.7)
+texture_normal = ExtResource("2_2dg7c")
+script = SubResource("GDScript_qdhuo")
+
+[node name="papandoaharian" type="TextureRect" parent="." unique_id=489430349]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -540.0
+offset_top = -177.0
+offset_right = 3126.6667
+offset_bottom = 1443.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("3_2dg7c")
+expand_mode = 1
+
+[node name="judul_doa" type="Label" parent="papandoaharian" unique_id=348907866]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 243.33337
+offset_top = 103.33331
+offset_right = -199.99976
+offset_bottom = 416.66663
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 100
+horizontal_alignment = 1
+
+[node name="gambardoa" type="TextureRect" parent="papandoaharian" unique_id=652999053]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 130.00018
+offset_bottom = 36.667114
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="lanjut" type="TextureButton" parent="." unique_id=1227063282]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -167.0
+offset_top = 78.0
+offset_right = 433.0
+offset_bottom = 602.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(0.25, 0.25)
+texture_normal = ExtResource("4_bcytf")
+
+[node name="back" type="TextureButton" parent="." unique_id=1593302111]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 18.0
+offset_top = 78.0
+offset_right = 618.0
+offset_bottom = 567.0
+grow_vertical = 2
+scale = Vector2(0.25, 0.25)
+texture_normal = ExtResource("5_ksffl")
+
+[node name="btn_audio" type="TextureButton" parent="." unique_id=847672323]
+layout_mode = 1
+offset_left = 184.99998
+offset_top = 10.999999
+offset_right = 785.0
+offset_bottom = 516.0
+scale = Vector2(0.2, 0.2)
+texture_normal = ExtResource("7_svlcp")
+script = SubResource("GDScript_ksffl")
+sound_on = ExtResource("7_svlcp")
+sound_off = ExtResource("8_pca3g")
+
+[node name="audio" type="AudioStreamPlayer2D" parent="." unique_id=182580948]
+
+[node name="judul" type="TextureRect" parent="." unique_id=875860308]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -147.00003
+offset_top = 11.0
+offset_right = 423.0
+offset_bottom = 237.0
+grow_horizontal = 2
+scale = Vector2(0.67, 0.67)
+texture = ExtResource("8_svlcp")
+
+[connection signal="pressed" from="lanjut" to="." method="_on_lanjut_pressed"]
+[connection signal="pressed" from="back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="btn_audio" to="." method="_on_btn_audio_pressed"]
+[connection signal="finished" from="audio" to="." method="_on_audio_finished"]

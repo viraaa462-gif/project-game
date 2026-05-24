@@ -1,0 +1,158 @@
+[gd_scene format=3 uid="uid://d1waoyeudcys8"]
+
+[ext_resource type="Texture2D" uid="uid://d2olhptb8bt68" path="res://asset/bg.png" id="1_hs5f2"]
+[ext_resource type="Texture2D" uid="uid://c0olp5rdrmwb2" path="res://karakter/diam.png" id="1_qo022"]
+[ext_resource type="Texture2D" uid="uid://dxr80kftfxjjs" path="res://karakter/jalan.png" id="2_hs5f2"]
+[ext_resource type="Texture2D" uid="uid://7210swxl2ixn" path="res://karakter/lompat.png" id="3_0s7hc"]
+[ext_resource type="Texture2D" uid="uid://cm01mfl0738s1" path="res://karakter/frame1.png" id="3_e8vxf"]
+[ext_resource type="Texture2D" uid="uid://c3q4ck74eekvu" path="res://karakter/frame2.png" id="4_502ra"]
+[ext_resource type="Texture2D" uid="uid://8noujl0op8js" path="res://karakter/frame3.png" id="5_j3n58"]
+[ext_resource type="Texture2D" uid="uid://un0vsryrexij" path="res://karakter/frame4.png" id="6_stuxr"]
+
+[sub_resource type="GDScript" id="GDScript_gjkf5"]
+resource_name = "player"
+script/source = "extends CharacterBody2D
+
+const SPEED = 200.0
+const JUMP_VELOCITY = -250.0
+const GRAVITY = 900.0
+
+@onready var anim = $AnimatedSprite2D
+
+var current_anim = \"\"
+
+func play_anim(name):
+	if current_anim != name:
+		anim.play(name)
+		current_anim = name
+
+func _physics_process(delta):
+	# Gravity
+	if not is_on_floor():
+		velocity.y += GRAVITY * delta
+		play_anim(\"lompat\")
+
+	# Jump
+	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+		play_anim(\"lompat\")
+
+	# Movement
+	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
+
+	if direction > 0:
+		velocity.x = SPEED
+		anim.flip_h = false
+		
+		if is_on_floor():
+			play_anim(\"jalan\")
+
+	elif direction < 0:
+		velocity.x = -SPEED
+		anim.flip_h = true
+		
+		if is_on_floor():
+			play_anim(\"jalan\")
+
+	else:
+		velocity.x = 0
+		
+		if is_on_floor():
+			play_anim(\"diam\")
+
+	move_and_slide()
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hs5f2"]
+size = Vector2(1502, 40)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_tdvyw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_qo022")
+}],
+"loop": true,
+"name": &"diam",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_e8vxf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_502ra")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_j3n58")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_stuxr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_hs5f2")
+}],
+"loop": true,
+"name": &"jalan",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_0s7hc")
+}],
+"loop": true,
+"name": &"lompat",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0s7hc"]
+size = Vector2(1876, 50)
+
+[node name="nyobagamenya" type="Control" unique_id=1497232467]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1606829826]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_hs5f2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=766803339]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_hs5f2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="player" type="CharacterBody2D" parent="." unique_id=1851656732]
+script = SubResource("GDScript_gjkf5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="player" unique_id=1059339337]
+position = Vector2(343, 609)
+shape = SubResource("RectangleShape2D_hs5f2")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="player" unique_id=871797669]
+position = Vector2(309.00003, 451)
+scale = Vector2(0.4, 0.4)
+sprite_frames = SubResource("SpriteFrames_tdvyw")
+animation = &"jalan"
+
+[node name="Ground" type="StaticBody2D" parent="." unique_id=1768601462]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=833334223]
+position = Vector2(554, 609)
+shape = SubResource("RectangleShape2D_0s7hc")

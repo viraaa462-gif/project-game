@@ -1,0 +1,279 @@
+[gd_scene format=3 uid="uid://bh6ymtcu4h3d1"]
+
+[ext_resource type="Texture2D" uid="uid://dw7fq7gaxduc0" path="res://asset/bg_menu.png" id="1_ht7lw"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="2_j4w0a"]
+[ext_resource type="Texture2D" uid="uid://ch1h3lahw2cnp" path="res://asset/tahap1fathah.png" id="3_r1l55"]
+[ext_resource type="Texture2D" uid="uid://0yduo4htphc1" path="res://asset/tahap2baru.png" id="4_r1l55"]
+[ext_resource type="Texture2D" uid="uid://5nsfu7fovnme" path="res://asset/tahap3baru.png" id="5_akjbm"]
+[ext_resource type="Texture2D" uid="uid://dpq5uvyjw031o" path="res://asset/tahap4baru.png" id="6_r0ep5"]
+[ext_resource type="Texture2D" uid="uid://ckt6i3srcu0ux" path="res://asset/tahap5baru.png" id="7_fd5ra"]
+[ext_resource type="Texture2D" uid="uid://ivxm5j5rax2b" path="res://asset/tahap6baru.png" id="8_c10j0"]
+
+[sub_resource type="GDScript" id="GDScript_r1l55"]
+resource_name = "pilihevel"
+script/source = "extends Control
+
+@onready var level1 = $level1
+@onready var level2 = $level2
+@onready var level3 = $level3
+@onready var level4 = $level4
+@onready var level5 = $level5
+@onready var level6 = $level6
+
+
+func _ready():
+
+	update_level()
+
+	level1.pressed.connect(_buka_level1)
+	level2.pressed.connect(_buka_level2)
+	level3.pressed.connect(_buka_level3)
+	level4.pressed.connect(_buka_level4)
+	level5.pressed.connect(_buka_level5)
+	level6.pressed.connect(_buka_level6)
+
+
+
+func update_level():
+
+	# ====================
+	# LEVEL 1
+	# ====================
+
+	level1.texture_normal = load(\"res://pilihlevel/level1buka.png\")
+	level1.disabled = false
+
+
+	# ====================
+	# LEVEL 2
+	# ====================
+
+	if Global.level_terbuka >= 2:
+
+		level2.texture_normal = load(\"res://pilihlevel/level2buka.png\")
+		level2.disabled = false
+
+	else:
+
+		level2.texture_normal = load(\"res://pilihlevel/level2kunci.png\")
+		level2.disabled = true
+
+
+	# ====================
+	# LEVEL 3
+	# ====================
+
+	if Global.level_terbuka >= 3:
+
+		level3.texture_normal = load(\"res://pilihlevel/level3buka.png\")
+		level3.disabled = false
+
+	else:
+
+		level3.texture_normal = load(\"res://pilihlevel/level3kunci.png\")
+		level3.disabled = true
+
+
+	# ====================
+	# LEVEL 4
+	# ====================
+
+	if Global.level_terbuka >= 4:
+
+		level4.texture_normal = load(\"res://pilihlevel/level4buka.png\")
+		level4.disabled = false
+
+	else:
+
+		level4.texture_normal = load(\"res://pilihlevel/level4kunci.png\")
+		level4.disabled = true
+
+
+	# ====================
+	# LEVEL 5
+	# ====================
+
+	if Global.level_terbuka >= 5:
+
+		level5.texture_normal = load(\"res://pilihlevel/level5buka.png\")
+		level5.disabled = false
+
+	else:
+
+		level5.texture_normal = load(\"res://pilihlevel/level5kunci.png\")
+		level5.disabled = true
+
+
+	# ====================
+	# LEVEL 6
+	# ====================
+
+	if Global.level_terbuka >= 6:
+
+		level6.texture_normal = load(\"res://pilihlevel/level6buka.png\")
+		level6.disabled = false
+
+	else:
+
+		level6.texture_normal = load(\"res://pilihlevel/level6kunci.png\")
+		level6.disabled = true
+
+
+
+func _buka_level1():
+	Global.level_aktif = 1
+	get_tree().change_scene_to_file(\"res://pilihhuruf.tscn\")
+
+
+func _buka_level2():
+	Global.level_aktif = 2
+	get_tree().change_scene_to_file(\"res://pilihhuruf.tscn\")
+
+
+func _buka_level3():
+	Global.level_aktif = 3
+	get_tree().change_scene_to_file(\"res://pilihhuruf.tscn\")
+
+
+func _buka_level4():
+	Global.level_aktif = 4
+	get_tree().change_scene_to_file(\"res://pilihhuruf.tscn\")
+
+
+func _buka_level5():
+	Global.level_aktif = 5
+	get_tree().change_scene_to_file(\"res://pilihhuruf.tscn\")
+
+
+func _buka_level6():
+	Global.level_aktif = 6
+	get_tree().change_scene_to_file(\"res://pilihhuruf.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_akjbm"]
+resource_name = "kembali"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://menu_utama.tscn\")
+"
+
+[node name="pilihlevel" type="Control" unique_id=66725458]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_r1l55")
+
+[node name="bg" type="TextureRect" parent="." unique_id=1904491948]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_ht7lw")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="kembali" type="TextureButton" parent="." unique_id=1359754805]
+layout_mode = 1
+offset_left = 17.0
+offset_right = 203.00006
+offset_bottom = 162.0
+scale = Vector2(0.8, 0.8)
+texture_normal = ExtResource("2_j4w0a")
+script = SubResource("GDScript_akjbm")
+
+[node name="level1" type="TextureButton" parent="." unique_id=711241497]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 69.0
+offset_top = 130.0
+offset_right = -611.0
+offset_bottom = -126.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.56, 0.56)
+texture_normal = ExtResource("3_r1l55")
+
+[node name="level2" type="TextureButton" parent="." unique_id=2044510382]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 479.0
+offset_top = 130.0
+offset_right = -201.0
+offset_bottom = -94.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.56, 0.56)
+texture_normal = ExtResource("4_r1l55")
+
+[node name="level3" type="TextureButton" parent="." unique_id=214541247]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 887.00006
+offset_top = 130.0
+offset_right = 207.0
+offset_bottom = -120.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.56, 0.56)
+texture_normal = ExtResource("5_akjbm")
+
+[node name="level4" type="TextureButton" parent="." unique_id=709628199]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 69.0
+offset_top = 428.00003
+offset_right = -611.0
+offset_bottom = 177.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.56, 0.56)
+texture_normal = ExtResource("6_r0ep5")
+
+[node name="level5" type="TextureButton" parent="." unique_id=1744078098]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 476.0
+offset_top = 428.0
+offset_right = -204.0
+offset_bottom = 185.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.56, 0.552)
+texture_normal = ExtResource("7_fd5ra")
+
+[node name="level6" type="TextureButton" parent="." unique_id=231156038]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 887.00006
+offset_top = 411.00003
+offset_right = 207.0
+offset_bottom = 186.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.56, 0.56)
+texture_normal = ExtResource("8_c10j0")

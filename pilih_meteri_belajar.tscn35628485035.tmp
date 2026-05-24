@@ -1,0 +1,119 @@
+[gd_scene format=3 uid="uid://b0od0qx4ipjmw"]
+
+[ext_resource type="Texture2D" uid="uid://dw7fq7gaxduc0" path="res://asset/bg_menu.png" id="1_6bp0f"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="2_m7uob"]
+[ext_resource type="Texture2D" uid="uid://lwmo3342f5jp" path="res://asset/Fathah remove bg.png" id="3_r7del"]
+[ext_resource type="Script" uid="uid://dcv7knajb0kn8" path="res://goyang_materi.gd" id="4_88yig"]
+[ext_resource type="Texture2D" uid="uid://bqk3y8t4urssn" path="res://asset/dhammah remove bg.png" id="5_5f7ge"]
+[ext_resource type="Texture2D" uid="uid://cc52bc141mt3" path="res://asset/kasrah remove bg.png" id="6_fkxsk"]
+
+[sub_resource type="GDScript" id="GDScript_yv2d4"]
+resource_name = "kembaliharakat"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://halmateri.tscn\")
+"
+
+[node name="Pilih Meteri Berharakat" type="Control" unique_id=855502824]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="bg" type="TextureRect" parent="." unique_id=1874396608]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_6bp0f")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="kembaliharakat" type="TextureButton" parent="." unique_id=1880547778]
+layout_mode = 1
+offset_left = 902.0
+offset_top = 4.0
+offset_right = 1088.0
+offset_bottom = 166.0
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("2_m7uob")
+script = SubResource("GDScript_yv2d4")
+
+[node name="tombolfathah" type="TextureButton" parent="." unique_id=1650195112]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 135.99995
+offset_top = 33.00003
+offset_right = 490.00012
+offset_bottom = 306.0
+grow_vertical = 2
+scale = Vector2(0.78, 0.78)
+texture_normal = ExtResource("3_r7del")
+texture_pressed = ExtResource("3_r7del")
+texture_hover = ExtResource("3_r7del")
+texture_disabled = ExtResource("3_r7del")
+script = ExtResource("4_88yig")
+
+[node name="tomboldhammah" type="TextureButton" parent="." unique_id=1716698959]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -108.0
+offset_top = -60.0
+offset_right = 245.0
+offset_bottom = 219.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.78, 0.78)
+texture_normal = ExtResource("5_5f7ge")
+texture_pressed = ExtResource("5_5f7ge")
+texture_hover = ExtResource("5_5f7ge")
+texture_disabled = ExtResource("5_5f7ge")
+script = ExtResource("4_88yig")
+
+[node name="tombolkasrah" type="TextureButton" parent="." unique_id=735277918]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -337.0
+offset_top = 23.99997
+offset_right = 18.0
+offset_bottom = 303.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(0.78, 0.78)
+texture_normal = ExtResource("6_fkxsk")
+texture_pressed = ExtResource("6_fkxsk")
+texture_hover = ExtResource("6_fkxsk")
+texture_disabled = ExtResource("6_fkxsk")
+script = ExtResource("4_88yig")
+
+[connection signal="button_down" from="tombolfathah" to="tombolfathah" method="_on_button_down"]
+[connection signal="button_up" from="tombolfathah" to="tombolfathah" method="_on_button_up"]
+[connection signal="pressed" from="tombolfathah" to="tombolfathah" method="_pressed"]
+[connection signal="button_down" from="tomboldhammah" to="tomboldhammah" method="_on_button_down"]
+[connection signal="button_up" from="tomboldhammah" to="tomboldhammah" method="_on_button_up"]
+[connection signal="pressed" from="tomboldhammah" to="tomboldhammah" method="_pressed"]
+[connection signal="button_down" from="tombolkasrah" to="tombolkasrah" method="_on_button_down"]
+[connection signal="button_up" from="tombolkasrah" to="tombolkasrah" method="_on_button_up"]
+[connection signal="pressed" from="tombolkasrah" to="tombolkasrah" method="_pressed"]

@@ -1,0 +1,148 @@
+[gd_scene format=3 uid="uid://fp3cr7b4ao56"]
+
+[ext_resource type="Texture2D" uid="uid://b5b77rp24rkaf" path="res://asset/bg lucu.png" id="1_inbxw"]
+[ext_resource type="Texture2D" uid="uid://cht0kcsg8p76g" path="res://asset/serethuruf.png" id="2_ooggf"]
+[ext_resource type="Texture2D" uid="uid://d174lfx4evtbh" path="res://asset/pilihhuruf.png" id="3_pbf80"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="4_ooggf"]
+[ext_resource type="Texture2D" uid="uid://f2lw1tifbun5" path="res://asset/papanyukpilih2.png" id="5_pbf80"]
+
+[sub_resource type="GDScript" id="GDScript_f5dqq"]
+resource_name = "pilihpermainan "
+script/source = "extends Control
+
+@onready var audio_sapa = $audio_sapa
+
+func _ready():
+
+	MusikManager.set_volume(-27)
+	audio_sapa.volume_db = 5
+	audio_sapa.stream = load(
+		\"res://audiosapa/pilihpermainan.mp3\"
+	)
+
+	audio_sapa.play()
+"
+
+[sub_resource type="GDScript" id="GDScript_inbxw"]
+resource_name = "serethuruf"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://bermain.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_pbf80"]
+resource_name = "pilihhuruf"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://pilihlevel.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_ooggf"]
+resource_name = "kembali"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://menu_utama.tscn\")
+"
+
+[node name="pilihpermainan" type="Control" unique_id=573070936]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_f5dqq")
+
+[node name="bg" type="TextureRect" parent="." unique_id=1274812761]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_inbxw")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="serethuruf" type="TextureButton" parent="." unique_id=1208247165]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -351.0
+offset_top = -83.0
+offset_right = 224.0
+offset_bottom = 517.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.6, 0.6)
+texture_normal = ExtResource("2_ooggf")
+script = SubResource("GDScript_inbxw")
+
+[node name="pilihhuruf" type="TextureButton" parent="." unique_id=1881464179]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 38.0
+offset_top = -77.0
+offset_right = 504.0
+offset_bottom = 458.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.67, 0.67)
+texture_normal = ExtResource("3_pbf80")
+script = SubResource("GDScript_pbf80")
+
+[node name="kembali" type="TextureButton" parent="." unique_id=1884023188]
+layout_mode = 1
+offset_left = 2.9999995
+offset_top = 1.0
+offset_right = 189.0
+offset_bottom = 163.0
+scale = Vector2(0.7, 0.7)
+texture_normal = ExtResource("4_ooggf")
+script = SubResource("GDScript_ooggf")
+
+[node name="pilih" type="TextureRect" parent="." unique_id=707710029]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -269.0
+offset_top = 7.0
+offset_right = 704.33325
+offset_bottom = 338.66666
+grow_horizontal = 2
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("5_pbf80")
+
+[node name="audio_sapa" type="AudioStreamPlayer" parent="." unique_id=88771102]

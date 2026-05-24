@@ -1,0 +1,5 @@
+*.apk
+*.tmp
+.import/
+.export/
+mono/

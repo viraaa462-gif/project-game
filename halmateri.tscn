@@ -1,0 +1,208 @@
+[gd_scene format=3 uid="uid://40qir70bo56q"]
+
+[ext_resource type="Texture2D" uid="uid://dw7fq7gaxduc0" path="res://asset/bg_menu.png" id="1_uotvc"]
+[ext_resource type="Texture2D" uid="uid://bvbig127vd4bj" path="res://asset/btn_tanpaharakat.png" id="2_hmi8k"]
+[ext_resource type="Texture2D" uid="uid://b2x8st87dtcio" path="res://asset/yukpilih.png" id="3_wj06f"]
+[ext_resource type="Texture2D" uid="uid://cf5h4jc8fo51g" path="res://asset/btn_berharakat.png" id="4_uotvc"]
+[ext_resource type="Texture2D" uid="uid://4vlyacax7no2" path="res://asset/btn_tanwin.png" id="5_bysov"]
+[ext_resource type="Texture2D" uid="uid://bpolali2yefmj" path="res://asset/btn_doaharian.png" id="6_xbk3f"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="7_hmi8k"]
+[ext_resource type="Texture2D" uid="uid://du8ymlqt24kgy" path="res://asset/iconmusik.png" id="8_wj06f"]
+[ext_resource type="Texture2D" uid="uid://bviys7yxbwa3x" path="res://asset/musikoff.png" id="9_uotvc"]
+
+[sub_resource type="GDScript" id="GDScript_hmi8k"]
+script/source = "extends Control
+
+func _ready() -> void:
+	pass
+
+func _process(delta: float) -> void:
+	pass
+
+func _on_btn_kembalihalmateri_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://menu_utama.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_wj06f"]
+resource_name = "btn_tanpaharakat"
+script/source = "extends TextureButton
+
+func _ready() -> void:
+	pass
+
+func _process(delta: float) -> void:
+	pass
+
+func _pressed():
+	get_tree().change_scene_to_file(\"res://materitanpaharakat.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_uotvc"]
+resource_name = "berharakat"
+script/source = "extends TextureButton
+
+func _ready() -> void:
+	pass
+
+func _process(delta: float) -> void:
+	pass
+
+func _pressed():
+	get_tree().change_scene_to_file(\"res://pilih_meteri_belajar.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_bysov"]
+resource_name = "btntanwin"
+script/source = "extends TextureButton
+
+func _ready() -> void:
+	pass
+
+func _process(delta: float) -> void:
+	pass
+
+func _pressed():
+	get_tree().change_scene_to_file(\"res://pilih_materi_tanwin.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_ygmv5"]
+resource_name = "doaharian"
+script/source = "extends TextureButton
+
+func _ready() -> void:
+	pass
+
+func _process(delta: float) -> void:
+	pass
+
+func _pressed():
+	get_tree().change_scene_to_file(\"res://doaharian.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_xbk3f"]
+resource_name = "musik"
+script/source = "extends TextureButton
+
+@export var icon_on : Texture2D
+@export var icon_off : Texture2D
+
+func _ready():
+	update_icon()
+
+func _pressed():
+	MusikManager.toggle_music()
+	update_icon()
+
+func update_icon():
+	if MusikManager.is_muted:
+		texture_normal = icon_off
+	else:
+		texture_normal = icon_on
+"
+
+[node name="halmateri" type="Control" unique_id=586328929]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_hmi8k")
+
+[node name="bgmateri" type="TextureRect" parent="." unique_id=481796607]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_uotvc")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="btn_tanpaharakat" type="TextureButton" parent="." unique_id=2117497458]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -449.0
+offset_top = 270.0
+offset_right = 262.11108
+offset_bottom = 627.0
+grow_horizontal = 2
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("2_hmi8k")
+script = SubResource("GDScript_wj06f")
+
+[node name="yukpilih" type="TextureRect" parent="." unique_id=1522130268]
+layout_mode = 1
+offset_left = 291.0
+offset_top = 41.000004
+offset_right = 1162.0
+offset_bottom = 327.0
+scale = Vector2(0.8, 0.8)
+texture = ExtResource("3_wj06f")
+
+[node name="btn_berharakat" type="TextureButton" parent="." unique_id=1120753210]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -566.0
+offset_top = -88.0
+offset_right = 139.0
+offset_bottom = 266.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("4_uotvc")
+script = SubResource("GDScript_uotvc")
+
+[node name="btn_tanwin" type="TextureButton" parent="." unique_id=1884502754]
+layout_mode = 0
+offset_left = 185.0
+offset_top = 484.0
+offset_right = 897.0
+offset_bottom = 834.0
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("5_bysov")
+script = SubResource("GDScript_bysov")
+
+[node name="btn_doaharian" type="TextureButton" parent="." unique_id=426211510]
+layout_mode = 1
+offset_left = 737.0
+offset_top = 484.0
+offset_right = 1413.0
+offset_bottom = 853.0
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("6_xbk3f")
+script = SubResource("GDScript_ygmv5")
+
+[node name="btn_kembalihalmateri" type="TextureButton" parent="." unique_id=894449416]
+layout_mode = 1
+offset_left = 32.0
+offset_top = 1.0
+offset_right = 218.0
+offset_bottom = 163.0
+scale = Vector2(0.74, 0.74)
+texture_normal = ExtResource("7_hmi8k")
+
+[node name="btn_musik" type="TextureButton" parent="." unique_id=69182514]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -190.0
+offset_top = 9.0
+offset_right = 410.0
+offset_bottom = 523.0
+grow_horizontal = 0
+scale = Vector2(0.23, 0.23)
+texture_normal = ExtResource("8_wj06f")
+script = SubResource("GDScript_xbk3f")
+icon_on = ExtResource("8_wj06f")
+icon_off = ExtResource("9_uotvc")
+
+[connection signal="pressed" from="btn_kembalihalmateri" to="." method="_on_btn_kembalihalmateri_pressed"]

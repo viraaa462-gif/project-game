@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://b7a48lv47rt3u"]
+
+[ext_resource type="Texture2D" uid="uid://dqkkd0fp2rpt7" path="res://asset/BG2.png" id="1_0sg2v"]
+[ext_resource type="Texture2D" uid="uid://b6menwfpc3xa8" path="res://asset/ba_fathah.png" id="2_x63xp"]
+[ext_resource type="Texture2D" uid="uid://curvl3qskirs0" path="res://asset/karakter.png" id="3_5p3cv"]
+[ext_resource type="Texture2D" uid="uid://bn0fpcxhhl7ff" path="res://asset/mata.png" id="4_wdveg"]
+[ext_resource type="Texture2D" uid="uid://dnj8cm47oqwcn" path="res://asset/tertutup.png" id="5_8emuo"]
+[ext_resource type="Texture2D" uid="uid://41dokeqm2w2b" path="res://asset/tertutuprapat.png" id="6_2ddhv"]
+[ext_resource type="Texture2D" uid="uid://dhmgtwmd3kisb" path="res://asset/bulat.png" id="7_vub1p"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5d2nh"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"baca ",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Node2D" type="Node2D" unique_id=2127698907]
+
+[node name="BG" type="Sprite2D" parent="." unique_id=1743265255]
+position = Vector2(574.00006, 328)
+scale = Vector2(0.74837244, 0.6259765)
+texture = ExtResource("1_0sg2v")
+
+[node name="ba fathah" type="Sprite2D" parent="." unique_id=2142544491]
+position = Vector2(440, 477.99997)
+scale = Vector2(0.53, 0.53)
+texture = ExtResource("2_x63xp")
+
+[node name="Mouth" type="AnimatedSprite2D" parent="." unique_id=910831348]
+sprite_frames = SubResource("SpriteFrames_5d2nh")
+animation = &"baca "
+
+[node name="body" type="Sprite2D" parent="Mouth" unique_id=268805119]
+position = Vector2(707, 291)
+scale = Vector2(0.62658226, 0.6660714)
+texture = ExtResource("3_5p3cv")
+
+[node name="mata" type="Sprite2D" parent="Mouth" unique_id=1255254838]
+position = Vector2(286, -209)
+texture = ExtResource("4_wdveg")
+
+[node name="tertutup" type="Sprite2D" parent="Mouth" unique_id=1477826208]
+position = Vector2(712, -154)
+texture = ExtResource("5_8emuo")
+
+[node name="tertutuprapat" type="Sprite2D" parent="Mouth" unique_id=1690015274]
+position = Vector2(1060, -169)
+texture = ExtResource("6_2ddhv")
+
+[node name="bulat" type="Sprite2D" parent="Mouth" unique_id=1078764852]
+position = Vector2(1401, 232)
+texture = ExtResource("7_vub1p")
+
+[node name="Sprite2D" type="Sprite2D" parent="Mouth" unique_id=795638201]

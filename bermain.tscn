@@ -1,0 +1,791 @@
+[gd_scene format=3 uid="uid://bkhx7h722i3jh"]
+
+[ext_resource type="Texture2D" uid="uid://dqkkd0fp2rpt7" path="res://asset/BG2.png" id="1_12smv"]
+[ext_resource type="Texture2D" uid="uid://cqldsfx6xq85l" path="res://asset/papanmain.png" id="2_iqf6c"]
+[ext_resource type="Texture2D" uid="uid://ve7bvcmewdki" path="res://asset/sound_on.png" id="3_kwt4v"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="4_jdp21"]
+[ext_resource type="Texture2D" uid="uid://cjfictuqwro2v" path="res://asset/dragdrop.png" id="5_kwt4v"]
+
+[sub_resource type="GDScript" id="GDScript_4c5q6"]
+resource_name = "papandragdrop"
+script/source = "extends TextureRect
+
+@onready var area_target = $Control/outline
+@onready var area_pilihan = $Control/warna
+
+@onready var audiopopup = $\"../audiopopup\"
+@onready var popup = $popup
+@onready var popupakhir = $\"../popupakhir\"
+
+@onready var audio_bintang = $Control/audio_bintang
+
+@onready var btnselesai = $\"../popupakhir/btnselesai\"
+@onready var btnmainlagi = $\"../popupakhir/btnmainlagi\"
+@onready var star_container = $\"../popupakhir/HBoxContainer\"
+
+@onready var bintang1 = $\"../popupakhir/HBoxContainer/bintang1\"
+@onready var bintang2 = $\"../popupakhir/HBoxContainer/bintang2\"
+@onready var bintang3 = $\"../popupakhir/HBoxContainer/bintang3\"
+
+@onready var audio_huruf = $Control/audio_huruf
+@onready var audio_efek = $Control/audio_efek
+
+
+var total_salah = 0
+var daftar_audio_huruf = []
+var rng = RandomNumberGenerator.new()
+
+
+var popup_akhir_list = [
+	\"res://popupakhir/popupluarbiasa.png\",
+	\"res://popupakhir/popuppintarsekali.png\",
+	\"res://popupakhir/popupwahhebat.png\"
+]
+
+var popup_list = [
+	\"res://popupdragdrop/popuppandaluarbiasa.png\",
+	\"res://popupdragdrop/popupkelincihebat.png\",
+	\"res://popupdragdrop/popupkucingkamupintar.png\"
+]
+
+var popup_audio = {
+	\"res://popupdragdrop/popuppandaluarbiasa.png\": \"res://audiodragdrop/luarbiasa.mp3\",
+	\"res://popupdragdrop/popupkelincihebat.png\": \"res://audiodragdrop/Hebat1.mp3\",
+	\"res://popupdragdrop/popupkucingkamupintar.png\": \"res://audiodragdrop/kamupintar.mp3\"
+}
+
+# 🔥 FIX ERROR DI SINI
+var last_popup = \"\"
+
+# 🧠 SEMUA SOAL
+var semua_soal = [
+	[2, 4, 7],
+	[6, 8, 12],
+	[9, 13, 14],
+	[18, 21, 24],
+	[15, 10, 20],
+	[1, 3, 5],
+	[26, 30, 17],
+	[11, 16, 19],
+	[22, 23,25],
+	[27, 28, 29]
+]
+
+var daftar_soal = []
+var index_soal = 0
+
+# 🎯 DRAG SYSTEM
+var dragged_item = null
+var total_benar = 0
+var total_target = 3
+var soal_sebelumnya = []
+
+# 🎨 LOAD GAMBAR
+func get_warna(id):
+	return load(\"res://hurufdragdrop/warna/\" + str(id) + \".png\")
+
+func get_outline(id):
+	return load(\"res://hurufdragdrop/outline/\" + str(id) + \".png\")
+func load_audio_huruf():
+	for i in range(1, 31):
+		var path = \"res://audiohurufdasar/\" + str(i) + \".mp3\"
+
+		var audio = load(path)
+
+		if audio:
+			daftar_audio_huruf.append(audio)
+		else:
+			print(\"GAGAL LOAD AUDIO:\", path)
+
+# 🎲 AMBIL 4 SOAL
+func ambil_5_soal():
+	randomize()
+
+	index_soal = 0
+	daftar_soal.clear()
+
+	var temp = semua_soal.duplicate(true)
+	var soal_baru = []
+	var percobaan = 0
+
+	while percobaan < 30:
+		temp = semua_soal.duplicate(true)
+		temp.shuffle()
+
+		soal_baru.clear()
+
+		for i in range(5):
+			soal_baru.append(temp[i])
+
+		# cek apakah 5 soal yang baru sama dengan sebelumnya
+		if buat_key_soal(soal_baru) != buat_key_soal(soal_sebelumnya):
+			break
+
+		percobaan += 1
+
+	daftar_soal = soal_baru.duplicate(true)
+	daftar_soal.shuffle()
+
+	soal_sebelumnya = daftar_soal.duplicate(true)
+
+	print(\"SOAL TERPILIH:\")
+	print(daftar_soal)
+func buat_key_soal(list_soal):
+	var kode = []
+
+	for soal in list_soal:
+		var temp = soal.duplicate()
+		temp.sort()
+		kode.append(str(temp))
+
+	kode.sort()
+
+	var hasil = \"\"
+	for k in kode:
+		hasil += k + \"|\"
+
+	return hasil
+	
+# 🎮 TAMPILKAN SOAL
+func tampilkan_soal():
+	total_benar = 0
+	
+	for c in area_target.get_children():
+		c.queue_free()
+
+	for c in area_pilihan.get_children():
+		c.queue_free()
+
+	var soal = daftar_soal[index_soal]
+
+	# 🔝 TARGET
+	var target = soal.duplicate()
+	target.shuffle()
+
+	for id in target:
+		var slot = TextureRect.new()
+		slot.texture = get_outline(id)
+		slot.custom_minimum_size = Vector2(150,150)
+		slot.expand = true
+		slot.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slot.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		
+		slot.set_meta(\"id\", id)
+		area_target.add_child(slot)
+
+	# 🔽 PILIHAN
+	var pilihan = soal.duplicate()
+	pilihan.shuffle()
+	
+	while pilihan == target:
+		pilihan.shuffle()
+
+	for id in pilihan:
+		var item = TextureRect.new()
+		item.texture = get_warna(id)
+		item.custom_minimum_size = Vector2(150,150)
+		item.expand = true
+		item.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		item.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		
+		item.set_meta(\"id\", id)
+		item.mouse_filter = Control.MOUSE_FILTER_STOP
+		
+		item.gui_input.connect(_on_item_input.bind(item))
+		
+		area_pilihan.add_child(item)
+		
+		await get_tree().process_frame
+		item.set_meta(\"start_pos\", item.global_position)
+
+
+# 🖱️ DRAG START
+func _on_item_input(event, item):
+	if event is InputEventMouseButton and event.pressed:
+		dragged_item = item
+
+
+# 🖱️ DRAG + DROP
+func _input(event):
+	if dragged_item and event is InputEventMouseMotion:
+		dragged_item.global_position = get_global_mouse_position()
+
+	if event is InputEventMouseButton and not event.pressed:
+		if dragged_item:
+			cek_drop(dragged_item)
+			dragged_item = null
+
+
+# 🎯 CEK DROP
+func cek_drop(item):
+	for slot in area_target.get_children():
+		var jarak = item.global_position.distance_to(slot.global_position)
+		
+		if jarak < 100:
+			if item.get_meta(\"id\") == slot.get_meta(\"id\"):
+				item.global_position = slot.global_position
+				item.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				
+				# 🔊 efek benar
+				await jawaban_benar(item.get_meta(\"id\") - 1)
+				total_benar += 1
+				
+				if total_benar == total_target:
+					await efek_selesai()
+			else:
+				total_salah += 1
+				reset_posisi(item)
+			
+			return
+	
+	reset_posisi(item)
+
+
+func efek_selesai():
+	# ⏳ jeda dulu
+	await get_tree().create_timer(0.3).timeout
+	
+	# 🎭 huruf hilang + popup muncul bersamaan
+	for c in area_target.get_children():
+		c.visible = false
+
+	for c in area_pilihan.get_children():
+		c.visible = false
+	
+	muncul_popup()
+	
+# 🔄 RESET
+func reset_posisi(item):
+	item.global_position = item.get_meta(\"start_pos\")
+
+
+# 🎉 POPUP RANDOM
+func muncul_popup():
+	# 🔥 SEMBUNYIKAN SEMUA HURUF
+	for c in area_target.get_children():
+		c.visible = false
+
+	for c in area_pilihan.get_children():
+		c.visible = false
+
+	# 🎲 RANDOM POPUP
+	var random_popup = popup_list.pick_random()
+
+	while random_popup == last_popup:
+		random_popup = popup_list.pick_random()
+
+	last_popup = random_popup
+
+	# 🎭 TAMPILKAN POPUP
+	popup.texture = load(random_popup)
+	popup.visible = true
+	popup.move_to_front()
+
+	# 🔊 AUDIO SESUAI POPUP
+	if popup_audio.has(random_popup):
+		audiopopup.stream = load(popup_audio[random_popup])
+		audiopopup.stop()
+		audiopopup.play()
+
+	# ⏳ TUNGGU
+	await get_tree().create_timer(1.5).timeout
+
+	popup.visible = false
+
+	next_soal()
+
+# 🔁 NEXT SOAL
+func next_soal():
+	index_soal += 1
+	
+	if index_soal < daftar_soal.size():
+		tampilkan_soal()
+	else:
+		muncul_popup_akhir() #memanggilpopupakhir
+
+func _ready():
+
+	rng.randomize()
+	audiopopup.volume_db = 8
+	
+	load_audio_huruf()
+	
+	if popup == null:
+		print(\"ERROR: node popup tidak ketemu.\")
+		return
+
+	if popupakhir == null:
+		print(\"ERROR: node popupakhir tidak ketemu.\")
+		return
+
+	if btnselesai == null:
+		print(\"ERROR: btnselesai tidak ketemu.\")
+		return
+
+	# =========================
+	# POPUP TENGAH
+	# =========================
+	popup.anchor_left = 0.5
+	popup.anchor_right = 0.5
+	popup.anchor_top = 0.5
+	popup.anchor_bottom = 0.5
+
+	popup.offset_left = -150
+	popup.offset_right = 150
+	popup.offset_top = -150
+	popup.offset_bottom = 150
+
+	popup.pivot_offset = Vector2(150, 150)
+
+	popup.visible = false
+	popup.custom_minimum_size = Vector2(500, 500)
+	popup.expand = true
+	popup.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	# =========================
+	# POPUP AKHIR
+	# =========================
+	popupakhir.anchor_left = 0.5
+	popupakhir.anchor_right = 0.5
+	popupakhir.anchor_top = 0.5
+	popupakhir.anchor_bottom = 0.5
+
+	popupakhir.offset_left = -250
+	popupakhir.offset_right = 250
+	popupakhir.offset_top = -220
+	popupakhir.offset_bottom = 300
+
+	popupakhir.expand = true
+	popupakhir.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	popupakhir.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	popupakhir.visible = false
+	popupakhir.z_index = 20
+	
+	# =========================
+	# TOMBOL SELESAI
+	# =========================
+	btnselesai.position = Vector2(60, 330)
+
+	btnselesai.texture_normal = load(\"res://ui/tombolselesai.png\")
+
+	btnselesai.custom_minimum_size = Vector2(180, 80)
+	btnselesai.size = Vector2(180, 80)
+
+	btnselesai.visible = false
+	btnselesai.z_index = 110
+	btnselesai.mouse_filter = Control.MOUSE_FILTER_STOP
+	btnselesai.disabled = false
+
+
+	# =========================
+	# TOMBOL MAIN LAGI
+	# =========================
+	btnmainlagi.texture_normal = load(\"res://ui/mainlagi.png\")
+
+	btnmainlagi.ignore_texture_size = true
+	btnmainlagi.stretch_mode = TextureButton.STRETCH_SCALE
+
+	btnmainlagi.position = Vector2(310, 328)
+
+	btnmainlagi.custom_minimum_size = Vector2(140, 50)
+	btnmainlagi.size = Vector2(140, 50)
+
+	btnmainlagi.scale = Vector2(1, 1)
+
+	btnmainlagi.visible = false
+	btnmainlagi.z_index = 110
+	btnmainlagi.mouse_filter = Control.MOUSE_FILTER_STOP
+	btnmainlagi.disabled = false
+
+
+	# CONNECT SIGNAL
+	if not btnselesai.pressed.is_connected(_on_btnselesai_pressed):
+		btnselesai.pressed.connect(_on_btnselesai_pressed)
+
+	if not btnmainlagi.pressed.is_connected(_on_btnmainlagi_pressed):
+		btnmainlagi.pressed.connect(_on_btnmainlagi_pressed)
+	# =========================
+	# BINTANG
+	# =========================
+	star_container.visible = true
+	star_container.z_index = 25
+
+	star_container.position = Vector2(75, 95)
+	star_container.size = Vector2(320, 80)
+
+	star_container.add_theme_constant_override(\"separation\", 10)
+	star_container.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	bintang1.custom_minimum_size = Vector2(120, 120)
+	bintang2.custom_minimum_size = Vector2(120, 120)
+	bintang3.custom_minimum_size = Vector2(120, 120)
+
+	bintang1.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bintang2.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bintang3.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+
+	bintang1.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	bintang2.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	bintang3.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	bintang1.texture = load(\"res://ui/bintang.png\")
+	bintang2.texture = load(\"res://ui/bintang.png\")
+	bintang3.texture = load(\"res://ui/bintang.png\")
+
+	bintang1.visible = false
+	bintang2.visible = false
+	bintang3.visible = false
+
+	# =========================
+	# RESET
+	# =========================
+	total_salah = 0
+
+	ambil_5_soal()
+	tampilkan_soal()
+
+	print(area_target)
+	print(area_pilihan)
+	print(audio_bintang)
+	
+func muncul_popup_akhir():
+	modulate.a = 0
+	randomize()
+	area_target.visible = false
+	area_pilihan.visible = false
+	set_process_input(false)
+
+	var random_popup = popup_akhir_list.pick_random()
+	popupakhir.texture = load(random_popup)
+	popupakhir.visible = true
+	popupakhir.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	popupakhir.z_index = 100
+
+	btnselesai.visible = true
+	btnmainlagi.visible = true
+
+	btnselesai.disabled = false
+	btnmainlagi.disabled = false
+
+	btnselesai.mouse_filter = Control.MOUSE_FILTER_STOP
+	btnmainlagi.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	btnselesai.z_index = 110
+	btnmainlagi.z_index = 110
+
+	bintang1.visible = false
+	bintang2.visible = false
+	bintang3.visible = false
+
+	var jumlah = hitung_bintang()
+	await tampilkan_bintang_satu_persatu(jumlah)
+		
+func tampilkan_bintang_satu_persatu(jumlah):
+
+
+	var daftar_bintang = [
+		bintang1,
+		bintang2,
+		bintang3
+	]
+
+	for i in range(jumlah):
+
+		# jeda biar tidak terlalu cepat
+		await get_tree().create_timer(0.55).timeout
+
+		# tampilkan bintang
+		daftar_bintang[i].visible = true
+
+		# animasi pop
+		daftar_bintang[i].scale = Vector2(0,0)
+
+		var tween = create_tween()
+
+		tween.tween_property(
+			daftar_bintang[i],
+			\"scale\",
+			Vector2(1,1),
+			0.3
+		).set_trans(Tween.TRANS_BACK)
+
+		# 🔊 AUDIO BINTANG
+		audio_bintang.stream = load(
+			\"res://audiobintang/BintangMuncul.mp3\"
+		)
+
+		audio_bintang.play()
+
+		# jeda sedikit setelah muncul
+		await get_tree().create_timer(0.15).timeout
+
+
+func hitung_bintang():
+	if total_salah == 0:
+		return 3
+	elif total_salah <= 2:
+		return 2
+	else:
+		return 1
+		
+
+func _on_btnselesai_pressed():
+
+	print(\"SELESAI DIKLIK\")
+
+	get_tree().change_scene_to_file(\"res://pilihpermainan.tscn\")
+func _on_btnmainlagi_pressed():
+	print(\"MAIN LAGI DIKLIK\")
+	rng.randomize()
+
+	# sembunyikan popup akhir
+	popupakhir.visible = false
+	btnselesai.visible = false
+	btnmainlagi.visible = false
+
+	# sembunyikan bintang
+	bintang1.visible = false
+	bintang2.visible = false
+	bintang3.visible = false
+
+	# tampilkan lagi area bermain
+	modulate.a = 1
+	area_target.visible = true
+	area_pilihan.visible = true
+
+	# hidupkan input drag lagi
+	set_process_input(true)
+
+	# reset data permainan
+	total_salah = 0
+	total_benar = 0
+	index_soal = 0
+	dragged_item = null
+
+	# reset popup terakhir
+	last_popup = \"\"
+
+	# ambil soal random baru
+	ambil_5_soal()
+	print(daftar_soal)
+
+	# tampilkan soal baru dari awal
+	tampilkan_soal()
+	
+#func audibenar
+func putar_suara_huruf(index_huruf):
+	if index_huruf < daftar_audio_huruf.size():
+		audio_huruf.stream = daftar_audio_huruf[index_huruf]
+		# mulai dari detik 0.1
+		audio_huruf.play()
+		
+func jawaban_benar(index_huruf):
+
+	# efek benar
+	audio_efek.stream = load(
+		\"res://audio_efek/benar.mp3\"
+	)
+
+	audio_efek.play()
+
+	# suara huruf langsung diputar
+	putar_suara_huruf(index_huruf)
+
+	# tunggu suara huruf selesai
+	await audio_huruf.finished
+
+	
+"
+
+[sub_resource type="GDScript" id="GDScript_jdp21"]
+resource_name = "btn_keluar"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://menu_utama.tscn\")
+"
+
+[node name="bermain" type="Control" unique_id=1942177618]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="bg" type="TextureRect" parent="." unique_id=942607455]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_12smv")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="papanmain" type="TextureRect" parent="." unique_id=952034095]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -520.0
+offset_top = -162.0
+offset_right = 1024.1174
+offset_bottom = 585.0587
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.68, 0.68)
+texture = ExtResource("2_iqf6c")
+script = SubResource("GDScript_4c5q6")
+
+[node name="Control" type="Control" parent="papanmain" unique_id=1496942517]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="audio_bintang" type="AudioStreamPlayer" parent="papanmain/Control" unique_id=1850039341]
+
+[node name="audio_efek" type="AudioStreamPlayer" parent="papanmain/Control" unique_id=810643634]
+
+[node name="audio_huruf" type="AudioStreamPlayer" parent="papanmain/Control" unique_id=1283203497]
+
+[node name="outline" type="HBoxContainer" parent="papanmain/Control" unique_id=1872113858]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 355.88232
+grow_horizontal = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="warna" type="HBoxContainer" parent="papanmain/Control" unique_id=511087434]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -355.8822
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="popup" type="TextureRect" parent="papanmain" unique_id=1187250318]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -234.55872
+offset_top = -263.97055
+offset_right = 265.44128
+offset_bottom = 236.02942
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(150, 150)
+pivot_offset_ratio = Vector2(0.5, 0.5)
+expand_mode = 1
+stretch_mode = 6
+
+[node name="popupakhir" type="TextureRect" parent="." unique_id=815222320]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.00003
+offset_right = 20.0
+offset_bottom = 19.99997
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="popupakhir" unique_id=589123971]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="bintang1" type="TextureRect" parent="popupakhir/HBoxContainer" unique_id=1571001703]
+layout_mode = 2
+
+[node name="bintang2" type="TextureRect" parent="popupakhir/HBoxContainer" unique_id=1678875671]
+layout_mode = 2
+
+[node name="bintang3" type="TextureRect" parent="popupakhir/HBoxContainer" unique_id=1662366394]
+layout_mode = 2
+
+[node name="btnselesai" type="TextureButton" parent="popupakhir" unique_id=659549306]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -412.99997
+offset_top = 141.00003
+offset_right = 1751.9998
+offset_bottom = 726.0
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(0.2, 0.2)
+
+[node name="btnmainlagi" type="TextureButton" parent="popupakhir" unique_id=186732338]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 181.00003
+offset_right = 463.0
+offset_bottom = 298.00003
+
+[node name="sound" type="TextureButton" parent="." unique_id=725729983]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -193.99988
+offset_top = 14.999999
+offset_right = 406.00012
+offset_bottom = 520.0
+grow_horizontal = 0
+scale = Vector2(0.2, 0.2)
+texture_normal = ExtResource("3_kwt4v")
+
+[node name="btn_keluar" type="TextureButton" parent="." unique_id=1880550530]
+layout_mode = 1
+offset_left = 4.9999995
+offset_right = 191.0
+offset_bottom = 162.0
+scale = Vector2(0.7, 0.7)
+texture_normal = ExtResource("4_jdp21")
+script = SubResource("GDScript_jdp21")
+
+[node name="judul" type="TextureRect" parent="." unique_id=959698766]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 227.0
+offset_top = 15.0
+offset_right = 543.0
+offset_bottom = 317.0
+grow_horizontal = 2
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("5_kwt4v")
+
+[node name="audiopopup" type="AudioStreamPlayer" parent="." unique_id=670566749]

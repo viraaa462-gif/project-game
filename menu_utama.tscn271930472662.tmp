@@ -1,0 +1,290 @@
+[gd_scene format=3 uid="uid://c80y0nyejqqf4"]
+
+[ext_resource type="Texture2D" uid="uid://b5b77rp24rkaf" path="res://asset/bg lucu.png" id="1_mxvgn"]
+[ext_resource type="Texture2D" uid="uid://b6wibieyfhkpp" path="res://asset/tombol belajar.png" id="2_acbcq"]
+[ext_resource type="Script" uid="uid://da0eybd0gas8k" path="res://goyang_tombol.gd" id="3_h2ukk"]
+[ext_resource type="PackedScene" uid="uid://40qir70bo56q" path="res://halmateri.tscn" id="4_ncqx8"]
+[ext_resource type="Texture2D" uid="uid://dsf426s3lrqxe" path="res://asset/bermain.png" id="5_tj4w5"]
+[ext_resource type="Texture2D" uid="uid://x5a5pwpk2vvb" path="res://asset/tombol kuis.png" id="6_61l4t"]
+[ext_resource type="PackedScene" uid="uid://fp3cr7b4ao56" path="res://pilihpermainan.tscn" id="6_mxvgn"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="7_fglmo"]
+[ext_resource type="Texture2D" uid="uid://cat0vf3f2uyqm" path="res://asset/tombolx.png" id="8_8vw10"]
+[ext_resource type="PackedScene" uid="uid://dsp4qau8tmk2a" path="res://kuis.tscn" id="8_mxvgn"]
+[ext_resource type="Texture2D" uid="uid://du8ymlqt24kgy" path="res://asset/iconmusik.png" id="10_h2ukk"]
+[ext_resource type="Texture2D" uid="uid://chng7vsxx4p0i" path="res://asset/judul (2).png" id="11_mxvgn"]
+[ext_resource type="Texture2D" uid="uid://bviys7yxbwa3x" path="res://asset/musikoff.png" id="11_ncqx8"]
+[ext_resource type="Texture2D" uid="uid://j7ehs7p3rmct" path="res://asset/popupkeluar.png" id="12_fglmo"]
+[ext_resource type="Texture2D" uid="uid://cgsk7j1e0lrhi" path="res://asset/batal.png" id="13_8vw10"]
+[ext_resource type="Texture2D" uid="uid://bcaa35sigvoib" path="res://asset/keluar.png" id="14_mxvgn"]
+
+[sub_resource type="GDScript" id="GDScript_acbcq"]
+script/source = "extends Control
+
+@onready var btn_belajar = $ui_menu/tombol_menu/slot_belajar/belajar
+@onready var btn_bermain = $ui_menu/tombol_menu/slot_bermain/bermain
+@onready var btn_kuis = $ui_menu/tombol_menu/slot_kuis/kuis
+
+@onready var popup_keluar = $CanvasLayer/popupkeluar
+@onready var bg_popup = $CanvasLayer/popupkeluar/popup
+
+func _on_btn_keluar_pressed():
+	get_tree().quit()
+
+
+func _on_btn_batal_pressed():
+
+	popup_keluar.hide()
+
+	btn_belajar.show()
+	btn_bermain.show()
+	btn_kuis.show()
+
+
+func buka_popup():
+
+	popup_keluar.show()
+
+	# posisi manual
+	bg_popup.position = Vector2(200, 100)
+
+	btn_belajar.hide()
+	btn_bermain.hide()
+	btn_kuis.hide()
+"
+
+[sub_resource type="GDScript" id="GDScript_fglmo"]
+resource_name = "btn_close"
+script/source = "extends TextureButton
+
+func _pressed():
+	get_tree().current_scene.buka_popup()
+"
+
+[sub_resource type="GDScript" id="GDScript_8vw10"]
+resource_name = "informasi"
+script/source = "extends TextureButton
+
+func _ready() -> void:
+	pass
+
+func _process(delta: float) -> void:
+	pass
+
+func _pressed():
+	get_tree().change_scene_to_file(\"res://informasi.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_ncqx8"]
+resource_name = "musik"
+script/source = "extends TextureButton
+
+@export var icon_on : Texture2D
+@export var icon_off : Texture2D
+
+func _ready():
+	update_icon()
+
+func _pressed():
+	MusikManager.toggle_music()
+	update_icon()
+
+func update_icon():
+	if MusikManager.is_muted:
+		texture_normal = icon_off
+	else:
+		texture_normal = icon_on
+"
+
+[node name="menuutama" type="Control" unique_id=231889509]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_acbcq")
+
+[node name="bg_menu" type="TextureRect" parent="." unique_id=1012509358]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_mxvgn")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ui_menu" type="CenterContainer" parent="." unique_id=163380031]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="tombol_menu" type="HBoxContainer" parent="ui_menu" unique_id=1814473042]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="slot_belajar" type="Control" parent="ui_menu/tombol_menu" unique_id=1327308233]
+custom_minimum_size = Vector2(800, 300)
+layout_mode = 2
+
+[node name="belajar" type="TextureButton" parent="ui_menu/tombol_menu/slot_belajar" unique_id=1416883326]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -470.0
+offset_top = 91.99999
+offset_right = 44.0
+offset_bottom = 577.0
+grow_horizontal = 0
+scale = Vector2(0.68, 0.68)
+texture_normal = ExtResource("2_acbcq")
+texture_pressed = ExtResource("2_acbcq")
+texture_hover = ExtResource("2_acbcq")
+texture_disabled = ExtResource("2_acbcq")
+stretch_mode = 6
+script = ExtResource("3_h2ukk")
+target_scene = ExtResource("4_ncqx8")
+
+[node name="slot_bermain" type="Control" parent="ui_menu/tombol_menu" unique_id=1065860973]
+custom_minimum_size = Vector2(500, 250)
+layout_mode = 2
+
+[node name="bermain" type="TextureButton" parent="ui_menu/tombol_menu/slot_bermain" unique_id=2104937592]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -89.0
+offset_top = -208.0
+offset_right = 676.0
+offset_bottom = 256.6667
+grow_vertical = 0
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("5_tj4w5")
+texture_pressed = ExtResource("5_tj4w5")
+texture_hover = ExtResource("5_tj4w5")
+texture_disabled = ExtResource("5_tj4w5")
+stretch_mode = 6
+script = ExtResource("3_h2ukk")
+target_scene = ExtResource("6_mxvgn")
+
+[node name="slot_kuis" type="Control" parent="ui_menu/tombol_menu" unique_id=396842498]
+custom_minimum_size = Vector2(500, 250)
+layout_mode = 2
+
+[node name="kuis" type="TextureButton" parent="ui_menu/tombol_menu/slot_kuis" unique_id=2088421605]
+layout_mode = 0
+offset_left = -162.0
+offset_top = 91.99999
+offset_right = 360.0
+offset_bottom = 570.0
+scale = Vector2(0.68, 0.68)
+texture_normal = ExtResource("6_61l4t")
+script = ExtResource("3_h2ukk")
+target_scene = ExtResource("8_mxvgn")
+
+[node name="top_iu" type="Control" parent="." unique_id=502042184]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 232.0
+grow_horizontal = 2
+
+[node name="btn_close" type="TextureButton" parent="top_iu" unique_id=1019331283]
+layout_mode = 1
+offset_right = 186.0
+offset_bottom = 162.0
+scale = Vector2(0.8, 0.8)
+texture_normal = ExtResource("7_fglmo")
+script = SubResource("GDScript_fglmo")
+
+[node name="btn_info" type="TextureButton" parent="top_iu" unique_id=568360513]
+layout_mode = 1
+offset_left = 149.0
+offset_right = 590.0
+offset_bottom = 393.0
+scale = Vector2(0.3, 0.3)
+texture_normal = ExtResource("8_8vw10")
+script = SubResource("GDScript_8vw10")
+
+[node name="papantulisan" type="TextureRect" parent="top_iu" unique_id=225993615]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 337.0
+offset_top = 34.0
+offset_right = 504.0
+offset_bottom = 409.0
+grow_horizontal = 2
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("11_mxvgn")
+
+[node name="btn_musik" type="TextureButton" parent="top_iu" unique_id=1897530915]
+layout_mode = 1
+offset_left = 1106.0
+offset_right = 1706.0
+offset_bottom = 514.0
+scale = Vector2(0.23, 0.23)
+texture_normal = ExtResource("10_h2ukk")
+script = SubResource("GDScript_ncqx8")
+icon_on = ExtResource("10_h2ukk")
+icon_off = ExtResource("11_ncqx8")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=742041168]
+
+[node name="popupkeluar" type="Control" parent="CanvasLayer" unique_id=2029821259]
+visible = false
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -580.0
+offset_top = -290.0
+offset_right = 580.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="popup" type="TextureRect" parent="CanvasLayer/popupkeluar" unique_id=590263232]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -580.0
+offset_top = -290.0
+offset_right = 580.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("12_fglmo")
+
+[node name="btn_batal" type="TextureButton" parent="CanvasLayer/popupkeluar/popup" unique_id=2129355068]
+layout_mode = 0
+offset_left = 95.00006
+offset_top = 580.0
+offset_right = 520.00006
+offset_bottom = 710.0
+texture_normal = ExtResource("13_8vw10")
+
+[node name="btn_keluar" type="TextureButton" parent="CanvasLayer/popupkeluar/popup" unique_id=1997237555]
+layout_mode = 0
+offset_left = 657.5001
+offset_top = 580.0
+offset_right = 1082.5001
+offset_bottom = 717.0
+texture_normal = ExtResource("14_mxvgn")
+
+[connection signal="pressed" from="CanvasLayer/popupkeluar/popup/btn_batal" to="." method="_on_btn_batal_pressed"]
+[connection signal="pressed" from="CanvasLayer/popupkeluar/popup/btn_keluar" to="." method="_on_btn_keluar_pressed"]

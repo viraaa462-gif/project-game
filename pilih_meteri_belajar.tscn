@@ -1,0 +1,173 @@
+[gd_scene format=3 uid="uid://b0od0qx4ipjmw"]
+
+[ext_resource type="Texture2D" uid="uid://dw7fq7gaxduc0" path="res://asset/bg_menu.png" id="1_6bp0f"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="2_m7uob"]
+[ext_resource type="Texture2D" uid="uid://lwmo3342f5jp" path="res://asset/Fathah remove bg.png" id="3_r7del"]
+[ext_resource type="Script" uid="uid://dcv7knajb0kn8" path="res://goyang_materi.gd" id="4_88yig"]
+[ext_resource type="Texture2D" uid="uid://bqk3y8t4urssn" path="res://asset/dhammah remove bg.png" id="5_5f7ge"]
+[ext_resource type="PackedScene" uid="uid://dvjs58nited0h" path="res://berharakatfathah.tscn" id="5_fkxsk"]
+[ext_resource type="Texture2D" uid="uid://cc52bc141mt3" path="res://asset/kasrah remove bg.png" id="6_fkxsk"]
+[ext_resource type="PackedScene" uid="uid://bux1fvf487y71" path="res://berharakatdhammah.tscn" id="7_5snxf"]
+[ext_resource type="Texture2D" uid="uid://du8ymlqt24kgy" path="res://asset/iconmusik.png" id="7_r7del"]
+[ext_resource type="Texture2D" uid="uid://bviys7yxbwa3x" path="res://asset/musikoff.png" id="8_88yig"]
+[ext_resource type="PackedScene" uid="uid://ten1iln6duti" path="res://berharakatkasra.tscn" id="9_cd5ru"]
+[ext_resource type="Texture2D" uid="uid://h674661q38s" path="res://asset/papan.png" id="12_cd5ru"]
+
+[sub_resource type="GDScript" id="GDScript_yv2d4"]
+resource_name = "kembaliharakat"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://halmateri.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_88yig"]
+resource_name = "musik"
+script/source = "extends TextureButton
+
+@export var icon_on : Texture2D
+@export var icon_off : Texture2D
+
+func _ready():
+	update_icon()
+
+func _pressed():
+	MusikManager.toggle_music()
+	update_icon()
+
+func update_icon():
+	if MusikManager.is_muted:
+		texture_normal = icon_off
+	else:
+		texture_normal = icon_on
+"
+
+[node name="Pilih Meteri Berharakat" type="Control" unique_id=855502824]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_right = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="bg" type="TextureRect" parent="." unique_id=1874396608]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_6bp0f")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="kembaliharakat" type="TextureButton" parent="." unique_id=1880547778]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -317.99988
+offset_right = -131.99988
+offset_bottom = 162.0
+grow_horizontal = 0
+scale = Vector2(0.73, 0.73)
+texture_normal = ExtResource("2_m7uob")
+script = SubResource("GDScript_yv2d4")
+
+[node name="tombolfathah" type="TextureButton" parent="." unique_id=1650195112]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 76.0
+offset_top = 61.0
+offset_right = 430.00018
+offset_bottom = 334.0
+grow_vertical = 2
+scale = Vector2(0.98, 0.98)
+texture_normal = ExtResource("3_r7del")
+texture_pressed = ExtResource("3_r7del")
+texture_hover = ExtResource("3_r7del")
+texture_disabled = ExtResource("3_r7del")
+script = ExtResource("4_88yig")
+target_scene = ExtResource("5_fkxsk")
+
+[node name="tomboldhammah" type="TextureButton" parent="." unique_id=1716698959]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -54.0
+offset_right = 183.0
+offset_bottom = 225.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.98, 0.98)
+texture_normal = ExtResource("5_5f7ge")
+texture_pressed = ExtResource("5_5f7ge")
+texture_hover = ExtResource("5_5f7ge")
+texture_disabled = ExtResource("5_5f7ge")
+script = ExtResource("4_88yig")
+target_scene = ExtResource("7_5snxf")
+
+[node name="tombolkasrah" type="TextureButton" parent="." unique_id=735277918]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -414.0
+offset_top = 61.0
+offset_right = -59.0
+offset_bottom = 340.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(0.98, 0.98)
+texture_normal = ExtResource("6_fkxsk")
+texture_pressed = ExtResource("6_fkxsk")
+texture_hover = ExtResource("6_fkxsk")
+texture_disabled = ExtResource("6_fkxsk")
+script = ExtResource("4_88yig")
+target_scene = ExtResource("9_cd5ru")
+
+[node name="btn_musik" type="TextureButton" parent="." unique_id=902101910]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -182.0
+offset_top = 4.9999995
+offset_right = 418.0
+offset_bottom = 519.0
+grow_horizontal = 0
+scale = Vector2(0.2, 0.2)
+texture_normal = ExtResource("7_r7del")
+script = SubResource("GDScript_88yig")
+icon_on = ExtResource("7_r7del")
+icon_off = ExtResource("8_88yig")
+
+[node name="papanberharakat" type="TextureRect" parent="." unique_id=2070912541]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -262.0
+offset_top = 36.0
+offset_right = 572.28564
+offset_bottom = 370.0
+grow_horizontal = 2
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("12_cd5ru")

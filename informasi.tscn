@@ -1,0 +1,177 @@
+[gd_scene format=3 uid="uid://cjr2ordvnesfd"]
+
+[ext_resource type="Texture2D" uid="uid://br5ftxxntnbq0" path="res://asset/papan_materi.png" id="1_hublt"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="2_ag3sj"]
+[ext_resource type="Texture2D" uid="uid://du8ymlqt24kgy" path="res://asset/iconmusik.png" id="3_je0om"]
+[ext_resource type="Texture2D" uid="uid://bviys7yxbwa3x" path="res://asset/musikoff.png" id="4_jyhq7"]
+[ext_resource type="Texture2D" uid="uid://dmc3vtg73ln6x" path="res://asset/logo yudharta.png" id="5_s7f53"]
+
+[sub_resource type="GDScript" id="GDScript_je0om"]
+resource_name = "btn_keluar"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://menu_utama.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_jyhq7"]
+resource_name = "musik"
+script/source = "extends TextureButton
+
+@export var icon_on : Texture2D
+@export var icon_off : Texture2D
+
+func _ready():
+	update_icon()
+
+func _pressed():
+	MusikManager.toggle_music()
+	update_icon()
+
+func update_icon():
+	if MusikManager.is_muted:
+		texture_normal = icon_off
+	else:
+		texture_normal = icon_on
+"
+
+[sub_resource type="FontVariation" id="FontVariation_225nk"]
+
+[sub_resource type="FontVariation" id="FontVariation_rus62"]
+
+[node name="informasi" type="Control" unique_id=86646969]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="bg" type="TextureRect" parent="." unique_id=1532650457]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_hublt")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="btn_keluar" type="TextureButton" parent="." unique_id=587779383]
+layout_mode = 1
+offset_right = 186.0
+offset_bottom = 162.0
+scale = Vector2(0.7, 0.7)
+texture_normal = ExtResource("2_ag3sj")
+script = SubResource("GDScript_je0om")
+
+[node name="btn_musik" type="TextureButton" parent="." unique_id=1313089518]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -168.0
+offset_right = 432.0
+offset_bottom = 514.0
+grow_horizontal = 0
+scale = Vector2(0.2, 0.2)
+texture_normal = ExtResource("3_je0om")
+script = SubResource("GDScript_jyhq7")
+icon_on = ExtResource("3_je0om")
+icon_off = ExtResource("4_jyhq7")
+
+[node name="informasi" type="Label" parent="." unique_id=2100072037]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 170.0
+offset_top = -79.0
+offset_right = -141.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = SubResource("FontVariation_225nk")
+theme_override_font_sizes/font_size = 21
+text = "Aplikasi Game Edukasi Pengenalan Huruf Hijaiyah ini diharapkan 
+dapat membantu siswa (Anak Usia Dini) dalam belajar mengenal huruf hijaiyah 
+dengan cara yang interaktif dan menyenangkan. Aplikasi game ini dilengkapi
+dengan materi pembelajaran, audio pelafalan huruf, serta permainan dan kuis 
+sederhana. Aplikasi game ini dibuat untuk memenuhi Tugas Akhir dan
+bekerja sama dengan TK Al-Hamidy."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+text_direction = 1
+
+[node name="indentitas" type="Label" parent="." unique_id=1979727390]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -166.0
+offset_top = -233.0
+offset_right = 225.0
+offset_bottom = -132.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = SubResource("FontVariation_rus62")
+theme_override_font_sizes/font_size = 32
+text = "Nama : Lailil Maghfiroh
+"
+
+[node name="nim" type="Label" parent="." unique_id=1085664764]
+layout_mode = 0
+offset_left = 491.0
+offset_top = 170.0
+offset_right = 849.0
+offset_bottom = 268.0
+theme_override_constants/line_spacing = 0
+theme_override_constants/paragraph_spacing = 0
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Nim: 2022.69.04.0034
+"
+
+[node name="prodi" type="Label" parent="." unique_id=1717572978]
+layout_mode = 0
+offset_left = 460.0
+offset_top = 214.0
+offset_right = 899.0
+offset_bottom = 263.0
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Prodi : Teknik Informatika"
+
+[node name="univ" type="Label" parent="." unique_id=922752079]
+layout_mode = 0
+offset_left = 425.0
+offset_top = 258.0
+offset_right = 951.0
+offset_bottom = 359.0
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Universitas Yudharta Pasuruan
+"
+
+[node name="logouniv" type="TextureRect" parent="." unique_id=258681449]
+layout_mode = 1
+offset_left = 322.0
+offset_top = 153.0
+offset_right = 1061.0
+offset_bottom = 892.0
+scale = Vector2(0.16, 0.16)
+texture = ExtResource("5_s7f53")

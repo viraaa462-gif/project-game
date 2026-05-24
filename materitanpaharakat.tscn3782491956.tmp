@@ -1,0 +1,321 @@
+[gd_scene format=3 uid="uid://b45s6b1kgcrii"]
+
+[ext_resource type="Texture2D" uid="uid://dqkkd0fp2rpt7" path="res://asset/BG2.png" id="1_wfqk7"]
+[ext_resource type="Texture2D" uid="uid://m3cdpoxqx0w1" path="res://asset/tombollanjut.png" id="2_vvnp5"]
+[ext_resource type="Texture2D" uid="uid://cqldsfx6xq85l" path="res://asset/papanmain.png" id="2_xqvoi"]
+[ext_resource type="Texture2D" uid="uid://clbuymbnky3g8" path="res://asset/tombollanjut2.png" id="3_mn8s5"]
+[ext_resource type="Texture2D" uid="uid://3uryl3wapna1" path="res://asset/tombolauto.png" id="4_wfqk7"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="5_xqvoi"]
+[ext_resource type="Texture2D" uid="uid://tvnshryhjiw5" path="res://asset/tombolsendiri.png" id="6_mn8s5"]
+[ext_resource type="Texture2D" uid="uid://4k7gffr1n7o2" path="res://asset/tombolbersama.png" id="8_xqvoi"]
+
+[sub_resource type="GDScript" id="GDScript_wfqk7"]
+resource_name = "materitanpaharakat"
+script/source = "extends Control
+
+@onready var container_semua = $papanmateri/container_semua
+@onready var container_satu = $papanmateri/center_satu/container_satu
+@onready var center_satu = $papanmateri/center_satu
+@onready var tombol_mode = $tombolsendiri
+@onready var tombol_auto = $auto
+
+# =========================
+# DATA
+# =========================
+var daftar_huruf = []
+var index = 0
+var mode = 0 # 0 = satu huruf, 1 = semua huruf
+
+# =========================
+# AUTO PLAY
+# =========================
+var auto_jalan = false
+var timer_auto
+
+# =========================
+# LOAD HURUF
+# =========================
+func load_huruf():
+	for i in range(1, 31):
+		var path = \"res://huruftanpaharakat/\" + str(i) + \".png\"
+		var tex = load(path)
+		
+		if tex:
+			daftar_huruf.append(tex)
+		else:
+			print(\"GAGAL LOAD:\", path)
+
+# =========================
+func _ready():
+	load_huruf()
+	tampil_satu()
+
+	timer_auto = Timer.new()
+	add_child(timer_auto)
+	timer_auto.wait_time = 1.5
+	timer_auto.timeout.connect(next_huruf)
+
+# =========================
+# MODE 1 (SATU - TENGAH BESAR)
+# =========================
+func tampil_satu():
+	container_semua.hide()
+	center_satu.show()
+
+	hapus_semua_satu()
+
+	var tex = TextureRect.new()
+	tex.texture = daftar_huruf[index]
+
+	# 🔥 BESAR & TENGAH
+	tex.custom_minimum_size = Vector2(300, 300)
+	tex.expand = true
+	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	container_satu.add_child(tex)
+
+# =========================
+# MODE 2 (SEMUA - GRID)
+# =========================
+func tampil_semua():
+	center_satu.hide()
+	container_semua.show()
+
+	hapus_semua_semua()
+
+	container_semua.columns = 5
+
+	for i in range(daftar_huruf.size()):
+		var btn = Button.new()
+		btn.custom_minimum_size = Vector2(110, 110)
+
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+		var img = TextureRect.new()
+		img.texture = daftar_huruf[i]
+		img.expand = true
+		img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+		img.anchor_right = 1
+		img.anchor_bottom = 1
+
+		btn.add_child(img)
+
+		btn.pressed.connect(func():
+			print(\"Klik huruf ke:\", i)
+		)
+
+		container_semua.add_child(btn)
+
+# =========================
+# TOGGLE MODE
+# =========================
+func _on_tombolsendiri_pressed():
+	mode = 1 - mode
+	
+	print(\"MODE:\", mode)
+
+	if mode == 0:
+		tampil_satu()
+	else:
+		tampil_semua()
+
+	tombol_mode.update_icon(mode)
+
+# =========================
+# AUTO PLAY
+# =========================
+func _on_auto_pressed():
+	auto_jalan = !auto_jalan
+	
+	if auto_jalan:
+		timer_auto.start()
+	else:
+		timer_auto.stop()
+
+# =========================
+# NEXT HURUF
+# =========================
+func next_huruf():
+	if mode == 0:
+		index += 1
+		
+		if index >= daftar_huruf.size():
+			index = 0
+		
+		tampil_satu()
+
+# =========================
+# HAPUS KHUSUS
+# =========================
+func hapus_semua_satu():
+	for child in container_satu.get_children():
+		child.queue_free()
+
+func hapus_semua_semua():
+	for child in container_semua.get_children():
+		child.queue_free()
+
+# =========================
+func set_mode(m):
+	mode = m
+	
+	if mode == 0:
+		tampil_satu()
+	else:
+		tampil_semua()
+"
+
+[sub_resource type="GDScript" id="GDScript_mn8s5"]
+resource_name = "kembali"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://halmateri.tscn\")
+"
+
+[sub_resource type="GDScript" id="GDScript_xqvoi"]
+resource_name = "tombolsendiri"
+script/source = "extends TextureButton
+
+@export var icon_tombolsendiri : Texture2D
+@export var icon_tombolsemua : Texture2D
+
+func _ready():
+	update_icon(0)
+
+func update_icon(mode):
+	if mode == 0:
+		texture_normal = icon_tombolsendiri
+	else:
+		texture_normal = icon_tombolsemua
+"
+
+[node name="materitanpaharakat" type="Control" unique_id=1397484901]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_wfqk7")
+
+[node name="bg" type="TextureRect" parent="." unique_id=960438207]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_wfqk7")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="papanmateri" type="TextureRect" parent="." unique_id=84393180]
+layout_mode = 0
+offset_left = 131.0
+offset_top = 138.0
+offset_right = 3114.333
+offset_bottom = 1701.333
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_xqvoi")
+
+[node name="container_huruf" type="GridContainer" parent="papanmateri" unique_id=1432493814]
+layout_mode = 0
+offset_left = 1491.0001
+offset_top = 780.99994
+offset_right = 1491.0001
+offset_bottom = 780.99994
+grow_horizontal = 2
+grow_vertical = 2
+columns = 4
+
+[node name="center satu" type="CenterContainer" parent="papanmateri" unique_id=2091349491]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="container_satu" type="Control" parent="papanmateri/center satu" unique_id=1132651396]
+layout_mode = 2
+
+[node name="tombollanjut" type="TextureButton" parent="." unique_id=155564141]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.028
+anchor_bottom = 0.527
+offset_left = -179.0
+offset_top = -17.0
+offset_right = 388.74402
+offset_bottom = 489.504
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.2, 0.2)
+texture_normal = ExtResource("2_vvnp5")
+
+[node name="tombollanjut2" type="TextureButton" parent="." unique_id=504770428]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 53.0
+offset_top = -17.0
+offset_right = 653.0
+offset_bottom = 507.0
+grow_vertical = 2
+scale = Vector2(0.2, 0.2)
+texture_normal = ExtResource("3_mn8s5")
+
+[node name="auto" type="TextureButton" parent="." unique_id=1922084789]
+layout_mode = 0
+offset_left = 649.0
+offset_top = 21.0
+offset_right = 1249.0
+offset_bottom = 272.0
+scale = Vector2(0.3, 0.3)
+texture_normal = ExtResource("4_wfqk7")
+
+[node name="kembali" type="TextureButton" parent="." unique_id=58846053]
+layout_mode = 1
+offset_left = 392.0
+offset_top = 18.0
+offset_right = 578.0
+offset_bottom = 180.0
+scale = Vector2(0.56, 0.56)
+texture_normal = ExtResource("5_xqvoi")
+script = SubResource("GDScript_mn8s5")
+
+[node name="tombolsendiri" type="TextureButton" parent="." unique_id=990819070]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -67.0
+offset_top = 30.0
+offset_right = 533.0
+offset_bottom = 394.0
+grow_horizontal = 2
+scale = Vector2(0.19, 0.19)
+texture_normal = ExtResource("6_mn8s5")
+script = SubResource("GDScript_xqvoi")
+icon_tombolsendiri = ExtResource("6_mn8s5")
+icon_tombolsemua = ExtResource("8_xqvoi")
+
+[connection signal="pressed" from="tombollanjut" to="." method="_on_tombollanjut_pressed"]
+[connection signal="pressed" from="tombollanjut2" to="." method="_on_tombollanjut_2_pressed"]
+[connection signal="pressed" from="auto" to="." method="_on_auto_pressed"]
+[connection signal="pressed" from="tombolsendiri" to="." method="_on_tombolsendiri_pressed"]

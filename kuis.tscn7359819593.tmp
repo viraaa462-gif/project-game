@@ -1,0 +1,960 @@
+[gd_scene format=3 uid="uid://dsp4qau8tmk2a"]
+
+[ext_resource type="Texture2D" uid="uid://0ubgiqiif0bq" path="res://asset/bg baru.png" id="1_6q5os"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="2_k7r1q"]
+[ext_resource type="Texture2D" uid="uid://7du10us3kke4" path="res://asset/judul.png" id="3_ns3mn"]
+[ext_resource type="Texture2D" uid="uid://ve7bvcmewdki" path="res://asset/sound_on.png" id="4_eg8y7"]
+[ext_resource type="Texture2D" uid="uid://drsnbn7rxd8mt" path="res://asset/scor.png" id="5_xyjfl"]
+[ext_resource type="Texture2D" uid="uid://c282fwwjafq2c" path="res://asset/waktu.png" id="6_0na2m"]
+
+[sub_resource type="GDScript" id="GDScript_eg8y7"]
+resource_name = "kuis"
+script/source = "extends Control
+
+# =====================================================
+# NODE
+# =====================================================
+
+@onready var btn_sound = $btn_sound
+@onready var label_pertanyaan = $papankuis/top_ui/label_pertanyaan
+
+@onready var jawaban1 = $papankuis/pilihan/jawaban1
+@onready var jawaban2 = $papankuis/pilihan/jawaban2
+@onready var jawaban3 = $papankuis/pilihan/jawaban3
+
+@onready var popuphasilkuis = $popuphasilkuis
+@onready var bg_popup = $popuphasilkuis/bg_popup
+@onready var scor = $popuphasilkuis/bg_popup/scor/lbl_scor
+@onready var waktu = $popuphasilkuis/bg_popup/waktu/lbl_waktu
+@onready var btn_selesai = $popuphasilkuis/bg_popup/btn_selesai
+
+
+# UI gameplay
+@onready var scor_gameplay = $scor_gameplay
+@onready var waktu_gameplay = $waktu_gameplay
+@onready var lbl_skor = $scor_gameplay/lbl_skor
+@onready var lbl_waktu = $waktu_gameplay/lbl_waktu
+
+
+
+
+
+# =====================================================
+# VARIABLE
+# =====================================================
+
+
+
+var salah_count = 0
+var waktu_main = 0.0
+var skor = 0
+var soal_ke = 0
+var total_soal = 8
+
+var soal_aktif = {}
+
+var bisa_jawab = true
+
+
+# =====================================================
+# ANIMASI BALON
+# =====================================================
+
+#var waktu = 0.0
+var waktu_animasi = 0.0
+
+var pos_awal_1
+var pos_awal_2
+var pos_awal_3
+
+
+
+var daftar_popup = [
+	load(\"res://popuphasilkuis/goodjobpapan.png\"),
+	load(\"res://popuphasilkuis/hebatpapan.png\"),
+	load(\"res://popuphasilkuis/luarbiasapapan.png\"),
+	load(\"res://popuphasilkuis/pintarsekalipapan.png\")
+]
+
+# =====================================================
+# DATA SOAL
+# =====================================================
+
+var daftar_soal = [
+
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca ro?\",
+		\"benar\": \"res://huruf/fathah/10.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/10.png\",
+			\"res://huruf/kasrah/10.png\",
+			\"res://huruf/fathah/10.png\"
+		]
+	},
+
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca baa?\",
+		\"benar\": \"res://huruf/fathah/2.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/2.png\",
+			\"res://huruf/kasrah/2.png\",
+			\"res://huruf/fathah/2.png\"
+		]
+	},
+
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca fii?\",
+		\"benar\": \"res://huruf/kasrah/20.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/20.png\",
+			\"res://huruf/kasrah/20.png\",
+			\"res://huruf/fathah/20.png\"
+		]
+	},
+
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca buu?\",
+		\"benar\": \"res://huruf/dhammah/2.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/2.png\",
+			\"res://huruf/kasrah/2.png\",
+			\"res://huruf/fathah/2.png\"
+		]
+	},
+
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca binn?\",
+		\"benar\": \"res://huruf/kasratain/2.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammatain/2.png\",
+			\"res://huruf/kasratain/2.png\",
+			\"res://huruf/fathatain/2.png\"
+		]
+	},
+
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca syun?\",
+		\"benar\": \"res://huruf/dhammatain/13.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammatain/13.png\",
+			\"res://huruf/kasratain/13.png\",
+			\"res://huruf/fathatain/13.png\"
+		]
+	},
+	
+		{
+		\"pertanyaan\": \"Huruf manakah yang dibaca mu?\",
+		\"benar\": \"res://huruf/dhammah/24.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/24.png\",
+			\"res://huruf/kasrah/24.png\",
+			\"res://huruf/fathah/24.png\"
+		]
+	},
+	
+			{
+		\"pertanyaan\": \"Huruf manakah yang dibaca 'ii?\",
+		\"benar\": \"res://huruf/kasrah/18.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/18.png\",
+			\"res://huruf/kasrah/18.png\",
+			\"res://huruf/fathah/18.png\"
+		]
+	}, 
+	
+			{
+		\"pertanyaan\": \"Huruf manakah yang dibaca taa?\",
+		\"benar\": \"res://huruf/fathah/3.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/3.png\",
+			\"res://huruf/kasrah/3.png\",
+			\"res://huruf/fathah/3.png\"
+		]
+	}, 
+	
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca thon?\",
+		\"benar\": \"res://huruf/fathatain/16.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammatain/16.png\",
+			\"res://huruf/kasratain/16.png\",
+			\"res://huruf/fathatain/16.png\"
+		]
+	}, 
+	
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca mii?\",
+		\"benar\": \"res://huruf/kasrah/24.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/24.png\",
+			\"res://huruf/kasrah/24.png\",
+			\"res://huruf/fathah/24.png\"
+		]
+	},
+	
+		{
+		\"pertanyaan\": \"Huruf manakah yang dibaca Yaa?\",
+		\"benar\": \"res://huruf/fathah/28.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/28.png\",
+			\"res://huruf/kasrah/28.png\",
+			\"res://huruf/fathah/28.png\"
+		]
+	},
+	
+			{
+		\"pertanyaan\": \"Huruf manakah yang dibaca khu?\",
+		\"benar\": \"res://huruf/dhammah/5.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/5.png\",
+			\"res://huruf/kasrah/5.png\",
+			\"res://huruf/fathah/5.png\"
+		]
+	},
+	
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca jun?\",
+		\"benar\": \"res://huruf/dhammatain/5.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammatain/5.png\",
+			\"res://huruf/kasratain/5.png\",
+			\"res://huruf/fathatain/5.png\"
+		]
+	},
+	
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca Lin?\",
+		\"benar\": \"res://huruf/kasratain/23.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammatain/23.png\",
+			\"res://huruf/kasratain/23.png\",
+			\"res://huruf/fathatain/23.png\"
+		]
+	},
+	
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca Tsi?\",
+		\"benar\": \"res://huruf/kasrah/4.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/4.png\",
+			\"res://huruf/kasrah/4.png\",
+			\"res://huruf/fathah/4.png\"
+		]
+	},
+	
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca Haa?\",
+		\"benar\": \"res://huruf/fathah/27.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/27.png\",
+			\"res://huruf/kasrah/27.png\",
+			\"res://huruf/fathah/27.png\"
+		]
+	},
+	
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca ni?\",
+		\"benar\": \"res://huruf/kasrah/25.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/25.png\",
+			\"res://huruf/kasrah/25.png\",
+			\"res://huruf/fathah/25.png\"
+		]
+	},
+	
+		{
+		\"pertanyaan\": \"Huruf manakah yang dibaca dza?\",
+		\"benar\": \"res://huruf/fathah/9.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/9.png\",
+			\"res://huruf/kasrah/9.png\",
+			\"res://huruf/fathah/9.png\"
+		]
+	},
+	
+		{
+		\"pertanyaan\": \"Huruf manakah yang dibaca kuu?\",
+		\"benar\": \"res://huruf/dhammah/22.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/22.png\",
+			\"res://huruf/kasrah/22.png\",
+			\"res://huruf/fathah/22.png\"
+		]
+	},
+
+	{
+		\"pertanyaan\": \"Huruf manakah yang dibaca Aa?\",
+		\"benar\": \"res://huruf/dhammah/1.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/1.png\",
+			\"res://huruf/kasrah/1.png\",
+			\"res://huruf/fathah/1.png\"
+		]
+	},
+	
+		{
+		\"pertanyaan\": \"Huruf manakah yang dibaca ghu?\",
+		\"benar\": \"res://huruf/dhammah/19.png\",
+
+		\"pilihan\": [
+			\"res://huruf/dhammah/19.png\",
+			\"res://huruf/kasrah/19.png\",
+			\"res://huruf/fathah/19.png\"
+		]
+	},
+]
+
+
+# =====================================================
+# READY
+# =====================================================
+
+func _ready():
+	popuphasilkuis.visible = false
+	
+	# anchor tengah
+	bg_popup.anchor_left = 0.5
+	bg_popup.anchor_top = 0.5
+	bg_popup.anchor_right = 0.5
+	bg_popup.anchor_bottom = 0.5
+
+	bg_popup.texture = daftar_popup[0]
+	bg_popup.scale = Vector2(0.95, 0.95)
+
+# cek texture dulu
+	if bg_popup.texture != null:
+
+		var lebar = bg_popup.texture.get_width() * bg_popup.scale.x
+		var tinggi = bg_popup.texture.get_height() * bg_popup.scale.y
+
+		bg_popup.offset_left = -lebar / 2 + 70
+		bg_popup.offset_top = -tinggi / 2 + 35
+		bg_popup.offset_right = lebar / 2 + 70
+		bg_popup.offset_bottom = tinggi / 2 + 35
+	randomize()
+	
+	# =================================================
+# WARNA TEKS PERTANYAAN
+# =================================================
+
+	label_pertanyaan.add_theme_color_override(
+		\"font_color\",
+		Color(\"000000ff\")
+	)
+
+	label_pertanyaan.add_theme_color_override(
+		\"font_outline_color\",
+		Color.WHITE
+	)
+
+	label_pertanyaan.add_theme_constant_override(
+		\"outline_size\",
+		8
+	)
+
+	lbl_skor.text = \"0\"
+	
+
+	# =================================================
+	# POSISI BALON
+	# =================================================
+
+	jawaban1.global_position = Vector2(290, 150)
+	jawaban2.global_position = Vector2(490, 110)
+	jawaban3.global_position = Vector2(690, 150)
+
+	# =================================================
+	# UKURAN BALON
+	# =================================================
+
+	jawaban1.scale = Vector2(1.75, 1.75)
+	jawaban2.scale = Vector2(1.75, 1.75)
+	jawaban3.scale = Vector2(1.75, 1.75)
+
+	# POSISI AWAL ANIMASI
+	pos_awal_1 = jawaban1.global_position
+	pos_awal_2 = jawaban2.global_position
+	pos_awal_3 = jawaban3.global_position
+
+	
+	# =================================================
+	# KLIK JAWABAN
+	# =================================================
+
+	jawaban1.pressed.connect(
+	func():
+		cek_jawaban(jawaban1, jawaban1.texture_normal.resource_path)
+)
+
+	jawaban2.pressed.connect(
+	func():
+		cek_jawaban(jawaban2, jawaban2.texture_normal.resource_path)
+)
+
+	jawaban3.pressed.connect(
+	func():
+		cek_jawaban(jawaban3, jawaban3.texture_normal.resource_path)
+)
+	bg_popup.get_node(\"scor\").texture = load(\"res://uihasilkuis/scor.png\")
+	bg_popup.get_node(\"waktu\").texture = load(\"res://uihasilkuis/waktu.png\")
+	btn_selesai.texture_normal = load(\"res://uihasilkuis/selesaikuis.png\")
+
+	# =================================================
+	# POSISI SCORE
+	# =================================================
+
+	$popuphasilkuis/bg_popup/scor.position = Vector2(300, 340)
+	$popuphasilkuis/bg_popup/scor.scale = Vector2(0.32, 0.32)
+
+	# label angka score
+	scor.position = Vector2(120, 70)
+	scor.scale = Vector2(0.55, 0.55)
+
+	# warna tulisan score
+	scor.add_theme_color_override(\"font_color\", Color(\"8B4513\"))
+
+	# outline biar lucu
+	scor.add_theme_color_override(\"font_outline_color\", Color.WHITE)
+	scor.add_theme_constant_override(\"outline_size\", 6)
+
+	# =================================================
+	# POSISI WAKTU
+	# =================================================
+
+	$popuphasilkuis/bg_popup/waktu.position = Vector2(700, 340)
+	$popuphasilkuis/bg_popup/waktu.scale = Vector2(0.32, 0.32)
+
+	# label angka waktu
+	waktu.position = Vector2(120, 70)
+	waktu.scale = Vector2(0.55, 0.55)
+
+	# warna tulisan waktu
+	waktu.add_theme_color_override(\"font_color\", Color(\"8B4513\"))
+
+	# outline biar lucu
+	waktu.add_theme_color_override(\"font_outline_color\", Color.WHITE)
+	waktu.add_theme_constant_override(\"outline_size\", 6)
+	# =================================================
+	# BUTTON SELESAI
+	# =================================================
+
+	#btn_selesai.position = Vector2(205, 405)
+	btn_selesai.position = Vector2(450, 535)
+	btn_selesai.scale = Vector2(0.4, 0.4)
+	
+	btn_selesai.pressed.connect(
+		func():
+			get_tree().change_scene_to_file(\"res://menuutama.tscn\")
+	)
+	ambil_soal()
+
+# =====================================================
+# ANIMASI BALON RANDOM
+# =====================================================
+
+func _process(delta):
+
+	waktu_animasi += delta
+	
+		# TIMER BERMAIN
+	waktu_main += delta
+
+	var menit = int(waktu_main) / 60
+	var detik = int(waktu_main) % 60
+
+	lbl_waktu.text = \"%02d:%02d\" % [menit, detik]
+
+	jawaban1.position.y = pos_awal_1.y + sin(waktu_animasi * 2.0) * 5
+
+	jawaban2.position.y = pos_awal_2.y + sin((waktu_animasi + 1.5) * 2.0) * 5
+
+	jawaban3.position.y = pos_awal_3.y + sin((waktu_animasi + 3.0) * 2.0) * 5
+
+
+# =====================================================
+# ANIMASI TEKAN
+# =====================================================
+
+func animasi_tekan(tombol):
+	pass
+
+
+# =====================================================
+# AMBIL SOAL
+# =====================================================
+
+func ambil_soal():
+
+	if soal_ke >= total_soal:
+		var menit = int(waktu_main) / 60
+		var detik = int(waktu_main) % 60
+		popuphasilkuis.visible = true
+		
+				# animasi popup
+		popuphasilkuis.scale = Vector2(0,0)
+
+		var tween = create_tween()
+		tween.tween_property(
+			popuphasilkuis,
+			\"scale\",
+			Vector2(1,1),
+			0.4
+		).set_trans(Tween.TRANS_BACK)
+	
+	# sembunyikan UI gameplay
+		scor_gameplay.visible = false
+		waktu_gameplay.visible = false
+		
+
+		$papankuis/pilihan/jawaban1.visible = false
+		$papankuis/pilihan/jawaban2.visible = false
+		$papankuis/pilihan/jawaban3.visible = false
+
+		$papankuis/top_ui/label_pertanyaan.visible = false
+		$kuis.visible = false
+
+		# random bg popup
+		bg_popup.texture = daftar_popup.pick_random()
+
+		# tampilkan score & waktu di popup
+		scor.text = str(skor)
+		waktu.text = \"%02d:%02d\" % [int(waktu_main)/60, int(waktu_main)%60]
+
+	
+
+		print(\"Kuis selesai\")
+		print(\"Score :\", skor)
+		print(\"Waktu :\", \"%02d:%02d\" % [menit, detik])
+
+		print(\"Kuis selesai\")
+		return
+
+	soal_ke += 1
+
+	soal_aktif = daftar_soal.pick_random()
+
+	label_pertanyaan.text = str(soal_aktif[\"pertanyaan\"])
+
+	var pilihan = soal_aktif[\"pilihan\"].duplicate()
+
+	pilihan.shuffle()
+
+	jawaban1.texture_normal = load(pilihan[0])
+	jawaban2.texture_normal = load(pilihan[1])
+	jawaban3.texture_normal = load(pilihan[2])
+
+	bisa_jawab = true
+
+# =====================================================
+# CEK JAWABAN
+# =====================================================
+
+func cek_jawaban(tombol, jawaban_dipilih):
+
+	if bisa_jawab == false:
+		return
+
+	# =========================
+	# JAWABAN BENAR
+	# =========================
+
+	if jawaban_dipilih == soal_aktif[\"benar\"]:
+
+		bisa_jawab = false
+
+		skor += 20
+		lbl_skor.text = \"\" + str(skor)
+
+		print(\"Benar\")
+
+		# RESET JUMLAH SALAH
+		salah_count = 0
+
+		# MATIKAN GERAK BALON
+		set_process(false)
+
+		# EFEK BALON TERBANG
+		var tween = create_tween()
+
+		tween.parallel().tween_property(
+			tombol,
+			\"global_position:y\",
+			tombol.global_position.y - 300,
+			0.8
+		)
+
+		tween.parallel().tween_property(
+			tombol,
+			\"modulate:a\",
+			0.0,
+			0.8
+		)
+
+		await tween.finished
+
+		await get_tree().create_timer(1.0).timeout
+
+		# KEMBALIKAN BALON
+		jawaban1.modulate.a = 1
+		jawaban2.modulate.a = 1
+		jawaban3.modulate.a = 1
+
+		jawaban1.global_position = pos_awal_1
+		jawaban2.global_position = pos_awal_2
+		jawaban3.global_position = pos_awal_3
+
+		# HIDUPKAN LAGI GERAK BALON
+		set_process(true)
+
+		ambil_soal()
+
+	# =========================
+	# JAWABAN SALAH
+	# =========================
+
+	else:
+		# EFEK GOYANG BALON SALAH
+		var tween_salah = create_tween()
+
+		tween_salah.tween_property(
+			tombol,
+			\"rotation_degrees\",
+			-10,
+			0.08
+		)
+
+		tween_salah.tween_property(
+			tombol,
+			\"rotation_degrees\",
+			10,
+			0.08
+		)
+
+		tween_salah.tween_property(
+			tombol,
+			\"rotation_degrees\",
+			-10,
+			0.08
+		)
+
+		tween_salah.tween_property(
+			tombol,
+			\"rotation_degrees\",
+			0,
+			0.08
+		)
+
+		salah_count += 1
+
+		print(\"Salah ke-\", salah_count)
+
+		# MASIH BOLEH MENCOBA
+		if salah_count < 3:
+
+			print(\"Coba lagi\")
+
+		# SUDAH 3 KALI SALAH
+		else:
+
+			print(\"Pindah soal\")
+
+			salah_count = 0
+
+			await get_tree().create_timer(1.0).timeout
+
+			ambil_soal()
+			
+"
+
+[sub_resource type="GDScript" id="GDScript_bb7ij"]
+resource_name = "btn_keluar"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://menu_utama.tscn\")
+"
+
+[node name="kuis" type="Control" unique_id=596085226]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_eg8y7")
+
+[node name="bg" type="TextureRect" parent="." unique_id=1705020985]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_6q5os")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="btn_keluar" type="TextureButton" parent="." unique_id=493397678]
+layout_mode = 1
+offset_left = 22.0
+offset_top = 1.0000008
+offset_right = 208.0
+offset_bottom = 163.0
+scale = Vector2(0.68, 0.68)
+texture_normal = ExtResource("2_k7r1q")
+script = SubResource("GDScript_bb7ij")
+
+[node name="papankuis" type="TextureRect" parent="." unique_id=1709209989]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 131.0
+offset_top = 151.0
+offset_right = 1962.333
+offset_bottom = 1066.333
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.3, 0.3)
+
+[node name="top_ui" type="Control" parent="papankuis" unique_id=738716568]
+anchors_preset = 0
+offset_right = 2983.3333
+offset_bottom = 446.6667
+
+[node name="label_pertanyaan" type="Label" parent="papankuis/top_ui" unique_id=1575171006]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -961.6669
+offset_top = 90.0
+offset_right = 801.6669
+offset_bottom = 283.3333
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+
+[node name="pilihan" type="Control" parent="papankuis" unique_id=723352243]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = -558.3331
+offset_bottom = 558.3331
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="jawaban1" type="TextureButton" parent="papankuis/pilihan" unique_id=1643306148]
+layout_mode = 0
+offset_bottom = 1116.0
+
+[node name="jawaban2" type="TextureButton" parent="papankuis/pilihan" unique_id=257708795]
+layout_mode = 0
+offset_left = 4.0
+offset_right = 4.0
+offset_bottom = 1116.0
+
+[node name="jawaban3" type="TextureButton" parent="papankuis/pilihan" unique_id=398072229]
+layout_mode = 0
+offset_left = 8.0
+offset_right = 8.0
+offset_bottom = 1116.0
+
+[node name="audio_player" type="AudioStreamPlayer" parent="papankuis" unique_id=602785119]
+
+[node name="kuis" type="TextureRect" parent="." unique_id=1872136511]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -173.0
+offset_top = 15.000001
+offset_right = 568.0
+offset_bottom = 352.0
+grow_horizontal = 2
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("3_ns3mn")
+
+[node name="popuphasilkuis" type="Control" parent="." unique_id=2146932366]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="bg_popup" type="TextureRect" parent="popuphasilkuis" unique_id=1890655198]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="scor" type="TextureRect" parent="popuphasilkuis/bg_popup" unique_id=1586898577]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -20.0
+offset_right = 40.0
+offset_bottom = 20.0
+grow_vertical = 2
+
+[node name="lbl_scor" type="Label" parent="popuphasilkuis/bg_popup/scor" unique_id=1003585910]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="waktu" type="TextureRect" parent="popuphasilkuis/bg_popup" unique_id=1880660555]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -20.0
+offset_bottom = 20.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="lbl_waktu" type="Label" parent="popuphasilkuis/bg_popup/waktu" unique_id=769886330]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+
+[node name="btn_selesai" type="TextureButton" parent="popuphasilkuis/bg_popup" unique_id=1860562177]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="btn_sound" type="TextureButton" parent="." unique_id=1747343014]
+layout_mode = 0
+offset_left = 147.0
+offset_top = 3.9999998
+offset_right = 747.0
+offset_bottom = 509.0
+scale = Vector2(0.21, 0.21)
+texture_normal = ExtResource("4_eg8y7")
+
+[node name="scor_gameplay" type="TextureRect" parent="." unique_id=328814667]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -243.0
+offset_top = 116.000015
+offset_right = 557.0
+offset_bottom = 428.0
+grow_horizontal = 0
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("5_xyjfl")
+
+[node name="lbl_skor" type="Label" parent="scor_gameplay" unique_id=384887687]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -443.33362
+offset_top = 86.666595
+offset_right = -263.33362
+offset_bottom = 266.66663
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 131
+horizontal_alignment = 2
+
+[node name="waktu_gameplay" type="TextureRect" parent="." unique_id=457644511]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -246.00006
+offset_top = 11.00001
+offset_right = 439.0
+offset_bottom = 314.0
+grow_horizontal = 0
+scale = Vector2(0.34, 0.34)
+texture = ExtResource("6_0na2m")
+
+[node name="lbl_waktu" type="Label" parent="waktu_gameplay" unique_id=18238566]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -237.9411
+offset_top = 91.17645
+offset_right = -105.58807
+offset_bottom = 274.50977
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 117
+text = " "
+horizontal_alignment = 2

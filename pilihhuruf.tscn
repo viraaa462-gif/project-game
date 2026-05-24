@@ -1,0 +1,1773 @@
+[gd_scene format=3 uid="uid://b0mbdlse0acay"]
+
+[ext_resource type="Texture2D" uid="uid://b5b77rp24rkaf" path="res://asset/bg lucu.png" id="1_1d4m8"]
+[ext_resource type="Texture2D" uid="uid://wp33pnq4imqt" path="res://asset/tombol_info.png" id="3_jv7di"]
+[ext_resource type="Texture2D" uid="uid://d16py58r3623d" path="res://asset/judulpilihuruf2.png" id="4_fuair"]
+[ext_resource type="Texture2D" uid="uid://ve7bvcmewdki" path="res://asset/sound_on.png" id="4_jv7di"]
+
+[sub_resource type="GDScript" id="GDScript_jv7di"]
+resource_name = "pilihhuruf"
+script/source = "extends Control
+
+# =========================
+# VARIABLE
+# =========================
+
+var soal_aktif = []
+var index_soal = 0
+var soal_sekarang
+var boleh_jawab = false
+
+var waktu = 0.0
+var balon_bergerak = true
+
+var jumlah_benar = 0
+var jumlah_salah = 0
+
+# simpan posisi awal tombol
+var posisi_awal_tombol = {}
+
+var folder_gambar = \"\"
+var folder_audio = \"\"
+
+# =========================
+# NODE
+# =========================
+@onready var audio_efek = $audio_efek
+@onready var audio_salah = $audio_salah
+@onready var star_container = $popuphasilgame/bgpopup/HBoxContainer
+@onready var bintang1 = $popuphasilgame/bgpopup/HBoxContainer/bintang1
+@onready var bintang2 = $popuphasilgame/bgpopup/HBoxContainer/bintang2
+@onready var bintang3 = $popuphasilgame/bgpopup/HBoxContainer/bintang3
+@onready var popuphasilgame = $popuphasilgame
+@onready var btnkembali = $popuphasilgame/btnkembali
+@onready var btnlanjut = $popuphasilgame/btnlanjut
+
+@onready var label_pertanyaan = $papanhuruf/header/Label
+@onready var papanhuruf = $papanhuruf
+@onready var btn_sound = $btn_sound
+
+@onready var jawaban1 = $papanhuruf/pilihanhuruf/jawaban1
+@onready var jawaban2 = $papanhuruf/pilihanhuruf/jawaban2
+@onready var jawaban3 = $papanhuruf/pilihanhuruf/jawaban3
+
+@onready var popup_feedback = $popup_feedback
+@onready var gambarfeedback = $popup_feedback/gambarfeedback
+@onready var audio_benar = $audio_benar
+@onready var audio_soal = $audio_soal
+@onready var bgpopup = $popuphasilgame/bgpopup
+@onready var audio_bintang = $audio_bintang
+
+var popuphasil_data = [
+	\"res://popuphasilgame/popupluarbiasa.png\",
+	\"res://popuphasilgame/popuppintarsekali.png\",
+	\"res://popuphasilgame/popupwahhebat.png\"
+]
+
+var feedback_data = [
+	{
+		\"gambar\": \"res://popupfeedback/popupkelincihebat.png\",
+		\"audio\": \"res://audiobenar/Hebat2.mp3\"
+	},
+	{
+		\"gambar\": \"res://popupfeedback/popupkucingkamupintar.png\",
+		\"audio\": \"res://audiobenar/kamupintar.mp3\"
+	},
+	{
+		\"gambar\": \"res://popupfeedback/popuppandaluarbiasa.png\",
+		\"audio\": \"res://audiobenar/luarbiasa.mp3\"
+	},
+	{
+		\"gambar\": \"res://popupfeedback/bagus.png\",
+		\"audio\": \"res://audiobenar/bagus.mp3\"
+	},
+	{
+		\"gambar\": \"res://popupfeedback/goodjob.png\",
+		\"audio\": \"res://audiobenar/goodjob.mp3\"
+	},
+	{
+		\"gambar\": \"res://popupfeedback/keren.png\",
+		\"audio\": \"res://audiobenar/keren.mp3\"
+	},
+	{
+		\"gambar\": \"res://popupfeedback/pintar.png\",
+		\"audio\": \"res://audiobenar/pintar.mp3\"
+	}
+]
+
+# =========================
+# DATA SOAL
+# =========================
+
+var soal_fathah = [
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca A\",
+		\"jawaban_benar\": 1,
+		\"pilihan\": [1, 3, 5]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ba\",
+		\"jawaban_benar\": 2,
+		\"pilihan\": [2, 4, 7]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ta\",
+		\"jawaban_benar\": 3,
+		\"pilihan\": [3, 6, 9]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Tsa\",
+		\"jawaban_benar\": 4,
+		\"pilihan\": [4, 7, 10]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ja\",
+		\"jawaban_benar\": 5,
+		\"pilihan\": [5, 8, 11]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ha\",
+		\"jawaban_benar\": 6,
+		\"pilihan\": [6, 9, 12]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Kho\",
+		\"jawaban_benar\": 7,
+		\"pilihan\": [7, 10, 13]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Da\",
+		\"jawaban_benar\": 8,
+		\"pilihan\": [8, 11, 14]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Dza\",
+		\"jawaban_benar\": 9,
+		\"pilihan\": [9, 12, 15]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ro\",
+		\"jawaban_benar\": 10,
+		\"pilihan\": [10, 13, 16]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Za\",
+		\"jawaban_benar\": 11,
+		\"pilihan\": [11, 14, 17]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Sa\",
+		\"jawaban_benar\": 12,
+		\"pilihan\": [12, 15, 18]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Sya\",
+		\"jawaban_benar\": 13,
+		\"pilihan\": [13, 16, 19]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Sho\",
+		\"jawaban_benar\": 14,
+		\"pilihan\": [14, 17, 20]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Dho\",
+		\"jawaban_benar\": 15,
+		\"pilihan\": [15, 18, 21]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Tho\",
+		\"jawaban_benar\": 16,
+		\"pilihan\": [16, 19, 22]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Zho\",
+		\"jawaban_benar\": 17,
+		\"pilihan\": [17, 20, 23]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca 'aa\",
+		\"jawaban_benar\": 18,
+		\"pilihan\": [18, 21, 24]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Gho\",
+		\"jawaban_benar\": 19,
+		\"pilihan\": [19, 22, 25]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Fa\",
+		\"jawaban_benar\": 20,
+		\"pilihan\": [20, 23, 26]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Qo\",
+		\"jawaban_benar\": 21,
+		\"pilihan\": [21, 24, 27]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ka\",
+		\"jawaban_benar\": 22,
+		\"pilihan\": [22, 25, 28]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca La\",
+		\"jawaban_benar\": 23,
+		\"pilihan\": [23, 26, 20]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ma\",
+		\"jawaban_benar\": 24,
+		\"pilihan\": [24, 27, 1]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Na\",
+		\"jawaban_benar\": 25,
+		\"pilihan\": [25, 28, 2]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Wa\",
+		\"jawaban_benar\": 26,
+		\"pilihan\": [26, 22, 3]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Haaa\",
+		\"jawaban_benar\": 27,
+		\"pilihan\": [27, 1, 4]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ya\",
+		\"jawaban_benar\": 28,
+		\"pilihan\": [28, 2, 5]
+	},
+
+]
+var soal_kasrah = [
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca ii\",
+		\"jawaban_benar\": 1,
+		\"pilihan\": [1, 3, 5]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Bi\",
+		\"jawaban_benar\": 2,
+		\"pilihan\": [2, 4, 7]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ti\",
+		\"jawaban_benar\": 3,
+		\"pilihan\": [3, 6, 9]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Tsi\",
+		\"jawaban_benar\": 4,
+		\"pilihan\": [4, 7, 10]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ji\",
+		\"jawaban_benar\": 5,
+		\"pilihan\": [5, 8, 11]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Hi\",
+		\"jawaban_benar\": 6,
+		\"pilihan\": [6, 9, 12]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Khi\",
+		\"jawaban_benar\": 7,
+		\"pilihan\": [7, 10, 13]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Di\",
+		\"jawaban_benar\": 8,
+		\"pilihan\": [8, 11, 14]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Dzi\",
+		\"jawaban_benar\": 9,
+		\"pilihan\": [9, 12, 15]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ri\",
+		\"jawaban_benar\": 10,
+		\"pilihan\": [10, 13, 16]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Zi\",
+		\"jawaban_benar\": 11,
+		\"pilihan\": [11, 14, 17]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Si\",
+		\"jawaban_benar\": 12,
+		\"pilihan\": [12, 15, 18]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Syi\",
+		\"jawaban_benar\": 13,
+		\"pilihan\": [13, 16, 19]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Shi\",
+		\"jawaban_benar\": 14,
+		\"pilihan\": [14, 17, 20]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Dhi\",
+		\"jawaban_benar\": 15,
+		\"pilihan\": [15, 18, 21]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Thi\",
+		\"jawaban_benar\": 16,
+		\"pilihan\": [16, 19, 22]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Zhi\",
+		\"jawaban_benar\": 17,
+		\"pilihan\": [17, 20, 23]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca 'ii\",
+		\"jawaban_benar\": 18,
+		\"pilihan\": [18, 21, 24]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ghi\",
+		\"jawaban_benar\": 19,
+		\"pilihan\": [19, 22, 25]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Fi\",
+		\"jawaban_benar\": 20,
+		\"pilihan\": [20, 23, 26]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Qi\",
+		\"jawaban_benar\": 21,
+		\"pilihan\": [21, 24, 27]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ki\",
+		\"jawaban_benar\": 22,
+		\"pilihan\": [22, 25, 28]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Li\",
+		\"jawaban_benar\": 23,
+		\"pilihan\": [23, 26, 20]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Mi\",
+		\"jawaban_benar\": 24,
+		\"pilihan\": [24, 27, 1]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ni\",
+		\"jawaban_benar\": 25,
+		\"pilihan\": [25, 28, 2]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Wi\",
+		\"jawaban_benar\": 26,
+		\"pilihan\": [26, 22, 3]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Hi\",
+		\"jawaban_benar\": 27,
+		\"pilihan\": [27, 1, 4]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Yi\",
+		\"jawaban_benar\": 28,
+		\"pilihan\": [28, 2, 5]
+	},
+
+]
+var soal_dhammah = [
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca uu\",
+		\"jawaban_benar\": 1,
+		\"pilihan\": [1, 3, 5]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Bu\",
+		\"jawaban_benar\": 2,
+		\"pilihan\": [2, 4, 7]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Tu\",
+		\"jawaban_benar\": 3,
+		\"pilihan\": [3, 6, 9]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Tsu\",
+		\"jawaban_benar\": 4,
+		\"pilihan\": [4, 7, 10]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ju\",
+		\"jawaban_benar\": 5,
+		\"pilihan\": [5, 8, 11]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Hu\",
+		\"jawaban_benar\": 6,
+		\"pilihan\": [6, 9, 12]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Khu\",
+		\"jawaban_benar\": 7,
+		\"pilihan\": [7, 10, 13]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Du\",
+		\"jawaban_benar\": 8,
+		\"pilihan\": [8, 11, 14]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Dzu\",
+		\"jawaban_benar\": 9,
+		\"pilihan\": [9, 12, 15]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ru\",
+		\"jawaban_benar\": 10,
+		\"pilihan\": [10, 13, 16]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Zu\",
+		\"jawaban_benar\": 11,
+		\"pilihan\": [11, 14, 17]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Su\",
+		\"jawaban_benar\": 12,
+		\"pilihan\": [12, 15, 18]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Syu\",
+		\"jawaban_benar\": 13,
+		\"pilihan\": [13, 16, 19]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Shu\",
+		\"jawaban_benar\": 14,
+		\"pilihan\": [14, 17, 20]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Dhu\",
+		\"jawaban_benar\": 15,
+		\"pilihan\": [15, 18, 21]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Thu\",
+		\"jawaban_benar\": 16,
+		\"pilihan\": [16, 19, 22]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Zhu\",
+		\"jawaban_benar\": 17,
+		\"pilihan\": [17, 20, 23]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca 'uu\",
+		\"jawaban_benar\": 18,
+		\"pilihan\": [18, 21, 24]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ghu\",
+		\"jawaban_benar\": 19,
+		\"pilihan\": [19, 22, 25]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Fu\",
+		\"jawaban_benar\": 20,
+		\"pilihan\": [20, 23, 26]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Qu\",
+		\"jawaban_benar\": 21,
+		\"pilihan\": [21, 24, 27]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Ku\",
+		\"jawaban_benar\": 22,
+		\"pilihan\": [25, 22, 28]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Lu\",
+		\"jawaban_benar\": 23,
+		\"pilihan\": [26, 20, 23]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Mu\",
+		\"jawaban_benar\": 24,
+		\"pilihan\": [27, 24, 1]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Nu\",
+		\"jawaban_benar\": 25,
+		\"pilihan\": [25, 28, 2]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Wu\",
+		\"jawaban_benar\": 26,
+		\"pilihan\": [22, 26, 3]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Hu\",
+		\"jawaban_benar\": 27,
+		\"pilihan\": [4, 1, 27]
+	},
+
+	{
+		\"pertanyaan\": \"huruf manakah yang dibaca Yu\",
+		\"jawaban_benar\": 28,
+		\"pilihan\": [2, 28, 5]
+	},
+]
+#=========================
+# SOAL FATHATAIN
+# =========================
+
+var soal_fathatain = [
+
+	{\"pertanyaan\":\"huruf manakah yang dibaca An\",\"jawaban_benar\":1,\"pilihan\":[1,5,9]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Ban\",\"jawaban_benar\":2,\"pilihan\":[2,6,10]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Tan\",\"jawaban_benar\":3,\"pilihan\":[3,7,11]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Tsan\",\"jawaban_benar\":4,\"pilihan\":[4,8,12]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Jan\",\"jawaban_benar\":5,\"pilihan\":[5,9,13]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Han\",\"jawaban_benar\":6,\"pilihan\":[6,10,14]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Khan\",\"jawaban_benar\":7,\"pilihan\":[7,11,15]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dan\",\"jawaban_benar\":8,\"pilihan\":[8,12,16]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dzan\",\"jawaban_benar\":9,\"pilihan\":[9,13,17]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Ran\",\"jawaban_benar\":10,\"pilihan\":[10,14,18]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Zan\",\"jawaban_benar\":11,\"pilihan\":[11,15,19]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca San\",\"jawaban_benar\":12,\"pilihan\":[12,16,20]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Syan\",\"jawaban_benar\":13,\"pilihan\":[13,17,21]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Shan\",\"jawaban_benar\":14,\"pilihan\":[14,18,22]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dhan\",\"jawaban_benar\":15,\"pilihan\":[15,19,23]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Than\",\"jawaban_benar\":16,\"pilihan\":[16,20,24]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Zhan\",\"jawaban_benar\":17,\"pilihan\":[17,21,25]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca 'An\",\"jawaban_benar\":18,\"pilihan\":[18,22,26]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Ghan\",\"jawaban_benar\":19,\"pilihan\":[19,23,27]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Fan\",\"jawaban_benar\":20,\"pilihan\":[20,24,28]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Qan\",\"jawaban_benar\":21,\"pilihan\":[21,25,1]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Kan\",\"jawaban_benar\":22,\"pilihan\":[22,26,2]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Lan\",\"jawaban_benar\":23,\"pilihan\":[23,27,3]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Man\",\"jawaban_benar\":24,\"pilihan\":[24,28,4]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Nan\",\"jawaban_benar\":25,\"pilihan\":[25,1,5]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Wan\",\"jawaban_benar\":26,\"pilihan\":[26,2,6]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Haan\",\"jawaban_benar\":27,\"pilihan\":[27,3,7]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Yan\",\"jawaban_benar\":28,\"pilihan\":[28,4,8]},
+
+]
+
+# =========================
+# SOAL KASRATAIN
+# =========================
+
+var soal_kasratain = [
+
+	{\"pertanyaan\":\"huruf manakah yang dibaca In\",\"jawaban_benar\":1,\"pilihan\":[1,5,9]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Bin\",\"jawaban_benar\":2,\"pilihan\":[2,6,10]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Tin\",\"jawaban_benar\":3,\"pilihan\":[3,7,11]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Tsin\",\"jawaban_benar\":4,\"pilihan\":[4,8,12]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Jin\",\"jawaban_benar\":5,\"pilihan\":[5,9,13]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Hin\",\"jawaban_benar\":6,\"pilihan\":[6,10,14]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Khin\",\"jawaban_benar\":7,\"pilihan\":[7,11,15]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Din\",\"jawaban_benar\":8,\"pilihan\":[8,12,16]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dzin\",\"jawaban_benar\":9,\"pilihan\":[9,13,17]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Rin\",\"jawaban_benar\":10,\"pilihan\":[10,14,18]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Zin\",\"jawaban_benar\":11,\"pilihan\":[11,15,19]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Sin\",\"jawaban_benar\":12,\"pilihan\":[12,16,20]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Syin\",\"jawaban_benar\":13,\"pilihan\":[13,17,21]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Shin\",\"jawaban_benar\":14,\"pilihan\":[14,18,22]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dhin\",\"jawaban_benar\":15,\"pilihan\":[15,19,23]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Thin\",\"jawaban_benar\":16,\"pilihan\":[16,20,24]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Zhin\",\"jawaban_benar\":17,\"pilihan\":[17,21,25]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca 'In\",\"jawaban_benar\":18,\"pilihan\":[18,22,26]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Ghin\",\"jawaban_benar\":19,\"pilihan\":[19,23,27]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Fin\",\"jawaban_benar\":20,\"pilihan\":[20,24,28]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Qin\",\"jawaban_benar\":21,\"pilihan\":[21,25,1]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Kin\",\"jawaban_benar\":22,\"pilihan\":[22,26,2]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Lin\",\"jawaban_benar\":23,\"pilihan\":[23,27,3]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Min\",\"jawaban_benar\":24,\"pilihan\":[24,28,4]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Nin\",\"jawaban_benar\":25,\"pilihan\":[25,1,5]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Win\",\"jawaban_benar\":26,\"pilihan\":[26,2,6]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Hiin\",\"jawaban_benar\":27,\"pilihan\":[27,3,7]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Yin\",\"jawaban_benar\":28,\"pilihan\":[28,4,8]},
+
+]
+
+# =========================
+# SOAL DHAMMATAIN
+# =========================
+
+var soal_dhammatain = [
+
+	{\"pertanyaan\":\"huruf manakah yang dibaca Un\",\"jawaban_benar\":1,\"pilihan\":[1,5,9]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Bun\",\"jawaban_benar\":2,\"pilihan\":[2,6,10]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Tun\",\"jawaban_benar\":3,\"pilihan\":[3,7,11]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Tsun\",\"jawaban_benar\":4,\"pilihan\":[4,8,12]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Jun\",\"jawaban_benar\":5,\"pilihan\":[5,9,13]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Hun\",\"jawaban_benar\":6,\"pilihan\":[6,10,14]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Khun\",\"jawaban_benar\":7,\"pilihan\":[7,11,15]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dun\",\"jawaban_benar\":8,\"pilihan\":[8,12,16]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dzun\",\"jawaban_benar\":9,\"pilihan\":[9,13,17]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Run\",\"jawaban_benar\":10,\"pilihan\":[10,14,18]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Zun\",\"jawaban_benar\":11,\"pilihan\":[11,15,19]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Sun\",\"jawaban_benar\":12,\"pilihan\":[12,16,20]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Syun\",\"jawaban_benar\":13,\"pilihan\":[13,17,21]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Shun\",\"jawaban_benar\":14,\"pilihan\":[14,18,22]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Dhun\",\"jawaban_benar\":15,\"pilihan\":[15,19,23]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Thun\",\"jawaban_benar\":16,\"pilihan\":[16,20,24]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Zhun\",\"jawaban_benar\":17,\"pilihan\":[17,21,25]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca 'Un\",\"jawaban_benar\":18,\"pilihan\":[18,22,26]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Ghun\",\"jawaban_benar\":19,\"pilihan\":[19,23,27]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Fun\",\"jawaban_benar\":20,\"pilihan\":[20,24,28]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Qun\",\"jawaban_benar\":21,\"pilihan\":[21,25,1]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Kun\",\"jawaban_benar\":22,\"pilihan\":[22,26,2]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Lun\",\"jawaban_benar\":23,\"pilihan\":[23,27,3]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Mun\",\"jawaban_benar\":24,\"pilihan\":[24,28,4]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Nun\",\"jawaban_benar\":25,\"pilihan\":[25,1,5]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Wun\",\"jawaban_benar\":26,\"pilihan\":[26,2,6]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Huun\",\"jawaban_benar\":27,\"pilihan\":[27,3,7]},
+	{\"pertanyaan\":\"huruf manakah yang dibaca Yun\",\"jawaban_benar\":28,\"pilihan\":[28,4,8]},
+
+]
+
+var semua_soal = []
+
+
+# =========================
+# READY
+# =========================
+
+func _ready():
+	
+	randomize()
+	audio_benar.volume_db = 4
+	audio_soal.volume_db= 5
+	audio_efek.volume_db = 10
+	await get_tree().process_frame
+	MusikManager.set_volume(-27)
+	
+	popup_feedback.visible = false
+	popup_feedback.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	popup_feedback.z_index = 100
+	popup_feedback.visible = false
+
+	popup_feedback.anchor_left = 0.5
+	popup_feedback.anchor_right = 0.5
+	popup_feedback.anchor_top = 0.5
+	popup_feedback.anchor_bottom = 0.5
+
+	# ukuran popup sedikit lebih kecil
+	popup_feedback.offset_left = -180
+	popup_feedback.offset_right = 180
+	popup_feedback.offset_top = -80
+	popup_feedback.offset_bottom = 240
+	
+		# =========================
+		# PAPAN POPUP HASIL
+		# =========================
+	bgpopup.anchor_left = 0.5
+	bgpopup.anchor_top = 0.5
+	bgpopup.anchor_right = 0.5
+	bgpopup.anchor_bottom = 0.5
+
+	# ukuran popup
+	bgpopup.custom_minimum_size = Vector2(560, 430)
+
+	# center popup
+	bgpopup.offset_left = -280
+	bgpopup.offset_right = 280
+	bgpopup.offset_top = -215
+	bgpopup.offset_bottom = 215
+
+	bgpopup.texture = load(popuphasil_data.pick_random())
+	bgpopup.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bgpopup.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	bgpopup.z_index = 100
+	bgpopup.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+	# =========================
+	# GAMBAR FEEDBACK
+	# =========================
+
+	gambarfeedback.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	gambarfeedback.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	# ukuran gambar sedikit lebih kecil
+	gambarfeedback.custom_minimum_size = Vector2(200, 200)
+
+	# center di popup
+	gambarfeedback.anchor_left = 0.5
+	gambarfeedback.anchor_right = 0.5
+	gambarfeedback.anchor_top = 0.5
+	gambarfeedback.anchor_bottom = 0.5
+
+	gambarfeedback.offset_left = -150
+	gambarfeedback.offset_right = 150
+	gambarfeedback.offset_top = -150
+	gambarfeedback.offset_bottom = 150
+	
+	
+	jawaban1.anchor_left = 0
+	jawaban1.anchor_top = 0
+	jawaban1.anchor_right = 0
+	jawaban1.anchor_bottom = 0
+
+	jawaban2.anchor_left = 0
+	jawaban2.anchor_top = 0
+	jawaban2.anchor_right = 0
+	jawaban2.anchor_bottom = 0
+
+	jawaban3.anchor_left = 0
+	jawaban3.anchor_top = 0
+	jawaban3.anchor_right = 0
+	jawaban3.anchor_bottom = 0
+	
+	# =========================
+	# POSISI BALON (LEBIH TENGAH + JARAK RAPI)
+	# =========================
+
+	posisi_awal_tombol[jawaban1] = Vector2(390, 220)
+	posisi_awal_tombol[jawaban2] = Vector2(700, 220)
+	posisi_awal_tombol[jawaban3] = Vector2(1010, 220)
+
+	# =========================
+	# UKURAN BALON LEBIH BESAR
+	# =========================
+
+	jawaban1.scale = Vector2(1.8, 1.8)
+	jawaban2.scale = Vector2(1.8, 1.8)
+	jawaban3.scale = Vector2(1.8, 1.8)
+		
+	if Global.level_aktif == 1:
+
+		folder_gambar = \"res://balonfathah/\"
+		folder_audio = \"res://suarafathah/\"
+		audio_soal.volume_db = 5
+		audio_benar.volume_db = 4
+
+	elif Global.level_aktif == 2:
+
+		folder_gambar = \"res://balonkasrah/\"
+		folder_audio = \"res://suarakasrah/\"
+		audio_soal.volume_db = 10
+		audio_benar.volume_db = 4
+
+	elif Global.level_aktif == 3:
+
+		folder_gambar = \"res://balondhammah/\"
+		folder_audio = \"res://suaradhammah/\"
+		audio_soal.volume_db = 5
+		audio_benar.volume_db = 4
+		
+	elif Global.level_aktif == 4:
+
+		folder_gambar = \"res://balonfathatain/\"
+		folder_audio = \"res://suarafathatain/\"
+		audio_soal.volume_db = 5
+		audio_benar.volume_db = 4
+		
+	elif Global.level_aktif == 5:
+
+		folder_gambar = \"res://balonkasratain/\"
+		folder_audio = \"res://suarakasratain/\"
+		audio_soal.volume_db = 5
+		audio_benar.volume_db = 4
+		
+	elif Global.level_aktif == 6:
+
+		folder_gambar = \"res://balondhammatain/\"
+		folder_audio = \"res://suaradhammatain/\"
+		audio_soal.volume_db = 5
+		audio_benar.volume_db = 4
+
+	# =========================
+	# PILIH SOAL BERDASARKAN LEVEL
+	# =========================
+
+	if Global.level_aktif == 1:
+
+		soal_fathah.shuffle()
+		soal_aktif = soal_fathah.slice(0, 5)
+
+	elif Global.level_aktif == 2:
+
+		soal_kasrah.shuffle()
+		soal_aktif = soal_kasrah.slice(0, 5)
+
+	elif Global.level_aktif == 3:
+
+		soal_dhammah.shuffle()
+		soal_aktif = soal_dhammah.slice(0, 5)
+		
+	elif Global.level_aktif == 4:
+
+		soal_fathatain.shuffle()
+		soal_aktif = soal_fathatain.slice(0, 5)
+	
+	elif Global.level_aktif == 5:
+
+		soal_kasratain.shuffle()
+		soal_aktif = soal_kasratain.slice(0, 5)
+		
+	elif Global.level_aktif == 6:
+
+		soal_dhammatain.shuffle()
+		soal_aktif = soal_dhammatain.slice(0, 5)
+
+	# connect tombol
+	jawaban1.pressed.connect(func():
+		cek_jawaban(jawaban1)
+	)
+
+	jawaban2.pressed.connect(func():
+		cek_jawaban(jawaban2)
+	)
+
+	jawaban3.pressed.connect(func():
+		cek_jawaban(jawaban3)
+		)
+		
+	# =========================
+	# POSISI PERTANYAAN
+	# =========================
+
+	label_pertanyaan.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label_pertanyaan.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+	label_pertanyaan.position = Vector2(-250, 20)
+	label_pertanyaan.size = Vector2(650, 60)
+
+	# ukuran font lebih besar
+	label_pertanyaan.add_theme_font_size_override(\"font_size\", 28)
+	
+	# =========================
+	# POPUP HASIL GAME (CENTER OTOMATIS)
+	# =========================
+	popuphasilgame.visible = false
+	popuphasilgame.z_index = 100
+
+	popuphasilgame.anchor_left = 0
+	popuphasilgame.anchor_top = 0
+	popuphasilgame.anchor_right = 1
+	popuphasilgame.anchor_bottom = 1
+
+	popuphasilgame.offset_left = 0
+	popuphasilgame.offset_top = 0
+	popuphasilgame.offset_right = 0
+	popuphasilgame.offset_bottom = 0
+
+	# =========================
+	# TOMBOL KEMBALI DAN LANJUT
+	# =========================
+
+	btnkembali.texture_normal = load(\"res://uipopupgame/kembali.png\")
+	btnlanjut.texture_normal = load(\"res://uipopupgame/lanjut.png\")
+
+	btnkembali.ignore_texture_size = true
+	btnlanjut.ignore_texture_size = true
+
+	btnkembali.stretch_mode = TextureButton.STRETCH_SCALE
+	btnlanjut.stretch_mode = TextureButton.STRETCH_SCALE
+
+	# ukuran tombol dibuat sama
+	var ukuran_tombol = Vector2(150, 60)
+
+	btnkembali.size = ukuran_tombol
+	btnlanjut.size = ukuran_tombol
+
+	btnkembali.custom_minimum_size = ukuran_tombol
+	btnlanjut.custom_minimum_size = ukuran_tombol
+
+	# jangan pakai scale berbeda
+	btnkembali.scale = Vector2(1, 1)
+	btnlanjut.scale = Vector2(1, 1)
+
+	# posisi sejajar di bawah tulisan
+	btnkembali.position = Vector2(460, 450)
+	btnlanjut.position = Vector2(660, 450)
+
+	btnkembali.visible = false
+	btnlanjut.visible = false
+
+	btnkembali.disabled = false
+	btnlanjut.disabled = false
+
+	btnkembali.z_index = 1000
+	btnlanjut.z_index = 1000
+
+	btnkembali.mouse_filter = Control.MOUSE_FILTER_STOP
+	btnlanjut.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	btnkembali.pressed.connect(_on_btnkembali_pressed)
+	btnlanjut.pressed.connect(_on_btnlanjut_pressed)
+	
+	if label_pertanyaan:
+		label_pertanyaan.visible = false
+		
+		boleh_jawab = false
+
+		jawaban1.disabled = true
+		jawaban2.disabled = true
+		jawaban3.disabled = true
+
+	tampilkan_soal()
+	btn_sound.pressed.connect(_on_btn_sound_pressed)
+
+
+func _on_btn_sound_pressed():
+	putar_suara_soal()
+
+# =========================
+# TAMPILKAN SOAL
+# =========================
+
+func _process(delta):
+	if balon_bergerak == false:
+		return
+
+	waktu += delta
+
+	if posisi_awal_tombol.has(jawaban1):
+		jawaban1.position.y = posisi_awal_tombol[jawaban1].y + sin(waktu * 2.0) * 8
+
+	if posisi_awal_tombol.has(jawaban2):
+		jawaban2.position.y = posisi_awal_tombol[jawaban2].y + sin((waktu + 1.5) * 2.0) * 8
+
+	if posisi_awal_tombol.has(jawaban3):
+		jawaban3.position.y = posisi_awal_tombol[jawaban3].y + sin((waktu + 3.0) * 2.0) * 8
+	
+func putar_suara_soal():
+
+	boleh_jawab = false
+
+	# disable tombol sementara
+	jawaban1.disabled = true
+	jawaban2.disabled = true
+	jawaban3.disabled = true
+
+	var id_suara = soal_sekarang[\"jawaban_benar\"]
+	var path_audio = folder_audio + str(id_suara) + \".mp3\"
+
+	audio_soal.stream = load(path_audio)
+	audio_soal.stop()
+	audio_soal.play()
+
+	# tunggu audio selesai
+	await audio_soal.finished
+
+	boleh_jawab = true
+
+	# aktifkan tombol lagi
+	jawaban1.disabled = false
+	jawaban2.disabled = false
+	jawaban3.disabled = false
+		
+func tampilkan_soal():
+
+	# ambil soal sekarang
+	soal_sekarang = soal_aktif[index_soal]
+
+	# tampilkan pertanyaan
+	label_pertanyaan.text = soal_sekarang[\"pertanyaan\"]
+	
+	putar_suara_soal()
+
+	# ambil pilihan
+	var pilihan = soal_sekarang[\"pilihan\"].duplicate()
+
+	# acak pilihan
+	pilihan.shuffle()
+
+	# list tombol
+	var tombol = [jawaban1, jawaban2, jawaban3]
+	tombol.shuffle()
+
+	# =========================
+	# RESET TOTAL SEMUA TOMBOL
+	# =========================
+	for tombol_jawaban in tombol:
+
+		tombol_jawaban.visible = true
+		tombol_jawaban.disabled = false
+
+		# reset transparansi
+		tombol_jawaban.modulate = Color(1,1,1,1)
+
+		# reset posisi
+		tombol_jawaban.position = posisi_awal_tombol[tombol_jawaban]
+
+		# reset ukuran
+		tombol_jawaban.scale = Vector2(0.85,0.85)
+
+		# reset rotasi
+		tombol_jawaban.rotation_degrees = 0
+		
+		#acak urutan jawaban
+
+	# =========================
+	# PASANG DATA BARU
+	# =========================
+	for i in range(3):
+
+		var tombol_jawaban = tombol[i]
+
+		tombol_jawaban.texture_normal = load(
+			folder_gambar + \"%d.png\" % pilihan[i]
+		)
+
+		tombol_jawaban.set_meta(
+			\"jawaban\",
+			pilihan[i]
+		)
+# =========================
+# CEK JAWABAN
+# =========================
+func cek_jawaban(tombol):
+
+	var jawaban = tombol.get_meta(\"jawaban\")
+
+	# =========================
+	# JAWABAN BENAR
+	# =========================
+
+	if jawaban == soal_sekarang[\"jawaban_benar\"]:
+		jumlah_benar += 1
+		
+		audio_efek.stream = load(\"res://efekbalon/benar.mp3\")
+		audio_efek.play()
+		
+		balon_bergerak = false
+
+		# disable semua tombol
+		jawaban1.disabled = true
+		jawaban2.disabled = true
+		jawaban3.disabled = true
+
+		# animasi balon
+		efek_benar(tombol)
+
+		# tunggu animasi
+		await get_tree().create_timer(0.35).timeout
+
+		# =========================
+		# RANDOM FEEDBACK
+		# =========================
+		var feedback = feedback_data.pick_random()
+
+		gambarfeedback.texture = load(feedback[\"gambar\"])
+
+		audio_soal.stop()
+
+		audio_benar.stream = load(feedback[\"audio\"])
+		audio_benar.stop()
+		audio_benar.play()
+
+		# tampilkan popup
+		popup_feedback.visible = true
+
+		# tunggu popup
+		await get_tree().create_timer(1.5).timeout
+
+		popup_feedback.visible = false
+
+		# reset tombol
+		tombol.modulate = Color(1,1,1,1)
+		tombol.position = posisi_awal_tombol[tombol]
+
+		# lanjut soal
+		index_soal += 1
+
+		# =========================
+		# SOAL BERIKUTNYA
+		# =========================
+
+		if index_soal < soal_aktif.size():
+
+			tampilkan_soal()
+
+			jawaban1.disabled = false
+			jawaban2.disabled = false
+			jawaban3.disabled = false
+			
+			balon_bergerak = true
+
+		else:
+
+			if Global.level_aktif == 1:
+
+				Global.fathah_selesai = true
+				Global.level_terbuka = 2
+
+			elif Global.level_aktif == 2:
+
+				Global.kasroh_selesai = true
+				Global.level_terbuka = 3
+
+			elif Global.level_aktif == 3:
+
+				Global.dhammah_selesai = true
+				Global.level_terbuka = 4
+
+			elif Global.level_aktif == 4:
+
+				Global.fathatain_selesai = true
+				Global.level_terbuka = 5
+
+			elif Global.level_aktif == 5:
+
+				Global.kasratain_selesai = true
+				Global.level_terbuka = 6
+
+			tampilkan_popuphasilgame()
+
+
+	# =========================
+	# JAWABAN SALAH
+	# =========================
+
+	else:
+
+		jumlah_salah += 1
+
+		# efek suara salah
+		audio_efek.stream = load(\"res://efekbalon/salah.mp3\")
+		audio_efek.play()
+
+		# daftar feedback suara salah
+		var daftar_suara_salah = [
+				\"res://audiofeedbacksalahbalon/Belumberhasil.mp3\",
+				\"res://audiofeedbacksalahbalon/BelumTepat2.mp3\",
+				\"res://audiofeedbacksalahbalon/cobalagi.mp3\",
+				\"res://audiofeedbacksalahbalon/hmbelumcocoknih.mp3\",
+				\"res://audiofeedbacksalahbalon/ittspilihlagiyuk2.mp3\",
+				\"res://audiofeedbacksalahbalon/sedikitlagi.mp3\",
+				\"res://audiofeedbacksalahbalon/wahbelumcocoknih.mp3\",
+				\"res://audiofeedbacksalahbalon/yukcobalagi.mp3\"
+		]
+
+		# tunggu efek suara dulu
+		await get_tree().create_timer(0.25).timeout
+
+		# putar feedback salah
+		audio_salah.stream = load(daftar_suara_salah.pick_random())
+		audio_salah.stop()
+		audio_salah.play()
+
+		efek_salah(tombol)
+		
+		# tunggu feedback selesai
+		await audio_salah.finished
+
+		# putar ulang suara pertanyaan
+		putar_suara_soal()
+
+# =========================
+# EFEK SALAH
+# =========================
+
+func efek_salah(node):
+
+	var posisi_awal = node.position
+
+	var tween = create_tween()
+
+	tween.tween_property(
+		node,
+		\"position\",
+		posisi_awal + Vector2(-15, 0),
+		0.05
+	)
+
+	tween.tween_property(
+		node,
+		\"position\",
+		posisi_awal + Vector2(15, 0),
+		0.05
+	)
+
+	tween.tween_property(
+		node,
+		\"position\",
+		posisi_awal,
+		0.05
+	)
+
+
+# =========================
+# EFEK BENAR
+# =========================
+
+func efek_benar(node):
+
+	var posisi_awal = node.position
+
+	var tween = create_tween()
+
+	tween.parallel().tween_property(
+		node,
+		\"position\",
+		posisi_awal + Vector2(0, -150),
+		0.3
+	)
+
+	tween.parallel().tween_property(
+		node,
+		\"modulate:a\",
+		0.0,
+		0.3
+	)
+	
+func hitung_jumlah_bintang():
+	if jumlah_salah == 0:
+		return 3
+	elif jumlah_salah <= 2:
+		return 2
+	else:
+		return 1
+
+func tampilkan_bintang_satu_persatu(jumlah):
+	var daftar_bintang = [bintang1, bintang2, bintang3]
+
+	star_container.visible = true
+	star_container.z_index = 900
+	star_container.move_to_front()
+
+	for bintang in daftar_bintang:
+		bintang.visible = false
+		bintang.scale = Vector2(0.2, 0.2)
+		bintang.modulate = Color(1, 1, 1, 1)
+
+	for i in range(jumlah):
+		await get_tree().create_timer(0.35).timeout
+		
+		# =========================
+		# SUARA BINTANG
+		# =========================
+		audio_bintang.stream = load(\"res://audiobintang/BintangMuncul.mp3\")
+		audio_bintang.stop()
+		audio_bintang.play()
+
+		var bintang = daftar_bintang[i]
+		bintang.visible = true
+		bintang.z_index = 950
+		bintang.move_to_front()
+
+		var tween = create_tween()
+		tween.tween_property(
+			bintang,
+			\"scale\",
+			Vector2(1, 1),
+			0.25
+		).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func tampilkan_popuphasilgame():
+	balon_bergerak = false
+	$judul.visible = false
+
+	audio_soal.stop()
+	audio_benar.stop()
+
+	papanhuruf.visible = false
+	jawaban1.visible = false
+	jawaban2.visible = false
+	jawaban3.visible = false
+
+	popup_feedback.visible = false
+
+	bgpopup.texture = load(popuphasil_data.pick_random())
+
+	popuphasilgame.visible = true
+	popuphasilgame.z_index = 100
+	popuphasilgame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	bgpopup.visible = true
+	bgpopup.z_index = 100
+	bgpopup.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# =========================
+	# POSISI BINTANG
+	# =========================
+
+	star_container.visible = true
+
+	# reset anchor ke kiri atas
+	star_container.anchor_left = 0
+	star_container.anchor_top = 0
+	star_container.anchor_right = 0
+	star_container.anchor_bottom = 0
+
+	# ukuran container
+	star_container.size = Vector2(420, 120)
+	star_container.custom_minimum_size = Vector2(420, 120)
+
+	# posisi di dalam popup
+	star_container.position = Vector2(70, 35)
+
+	# center isi bintang
+	star_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	star_container.add_theme_constant_override(\"separation\", 20)
+
+	star_container.z_index = 900
+	star_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	star_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	star_container.add_theme_constant_override(\"separation\", 20)
+
+	bintang1.texture = load(\"res://uipopupgame/bintang.png\")
+	bintang2.texture = load(\"res://uipopupgame/bintang.png\")
+	bintang3.texture = load(\"res://uipopupgame/bintang.png\")
+
+	bintang1.custom_minimum_size = Vector2(120, 120)
+	bintang2.custom_minimum_size = Vector2(120, 120)
+	bintang3.custom_minimum_size = Vector2(120, 120)
+
+	bintang1.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bintang2.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bintang3.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+
+	bintang1.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	bintang2.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	bintang3.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+
+	bintang1.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bintang2.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bintang3.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	btnkembali.visible = true
+	btnlanjut.visible = true
+
+	btnkembali.disabled = false
+	btnlanjut.disabled = false
+
+	btnkembali.mouse_filter = Control.MOUSE_FILTER_STOP
+	btnlanjut.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	btnkembali.z_index = 1000
+	btnlanjut.z_index = 1000
+
+	var jumlah_bintang = hitung_jumlah_bintang()
+	await tampilkan_bintang_satu_persatu(jumlah_bintang)
+
+	btnkembali.move_to_front()
+	btnlanjut.move_to_front()
+		
+func _on_btnkembali_pressed():
+	MusikManager.set_volume(0)
+	get_tree().change_scene_to_file(\"res://pilihlevel.tscn\")
+	
+func _on_btnlanjut_pressed():
+
+	MusikManager.set_volume(0)
+
+	# naik level
+	Global.level_aktif += 1
+
+	# kalau sudah selesai semua level
+	if Global.level_aktif > 6:
+		get_tree().change_scene_to_file(\"res://pilihlevel.tscn\")
+		return
+
+	# reset tampilan popup
+	popuphasilgame.visible = false
+
+	# tampilkan lagi papan permainan
+	papanhuruf.visible = true
+	$judul.visible = true
+
+	# reset skor
+	jumlah_benar = 0
+	jumlah_salah = 0
+
+	# reset index soal
+	index_soal = 0
+
+	# kosongkan soal lama
+	soal_aktif.clear()
+
+	# =========================
+	# GANTI LEVEL 2
+	# =========================
+
+	if Global.level_aktif == 2:
+
+		folder_gambar = \"res://balonkasrah/\"
+		folder_audio = \"res://suarakasrah/\"
+
+		soal_kasrah.shuffle()
+		soal_aktif = soal_kasrah.slice(0, 5)
+		
+		
+	# =========================
+	# LEVEL 4 = FATHATAIN 3
+	# =========================
+	elif Global.level_aktif == 3:
+
+		folder_gambar = \"res://balondhammah/\"
+		folder_audio = \"res://suaradhammah/\"
+
+		soal_dhammah.shuffle()
+		soal_aktif = soal_dhammah.slice(0, 5)
+	
+	# =========================
+	# LEVEL 4 = FATHATAIN
+	# =========================
+	elif Global.level_aktif == 4:
+
+		folder_gambar = \"res://balonfathatain/\"
+		folder_audio = \"res://suarafathatain/\"
+
+		soal_fathatain.shuffle()
+		soal_aktif = soal_fathatain.slice(0, 5)
+
+	# =========================
+	# LEVEL 5 = KASRATAIN
+	# =========================
+	elif Global.level_aktif == 5:
+
+		folder_gambar = \"res://balonkasratain/\"
+		folder_audio = \"res://suarakasratain/\"
+
+		soal_kasratain.shuffle()
+		soal_aktif = soal_kasratain.slice(0, 5)
+
+	# =========================
+	# LEVEL 6 = DHAMMATAIN
+	# =========================
+	elif Global.level_aktif == 6:
+
+		folder_gambar = \"res://balondhammatain/\"
+		folder_audio = \"res://suaradhammatain/\"
+
+		soal_dhammatain.shuffle()
+		soal_aktif = soal_dhammatain.slice(0, 5)
+
+
+	# aktifkan gerakan lagi
+	balon_bergerak = true
+
+		# aktifkan gerakan lagi
+	balon_bergerak = true
+
+	# kecilkan musik lagi
+	MusikManager.set_volume(-27)
+
+	# tampilkan soal baru
+	tampilkan_soal()
+"
+
+[sub_resource type="GDScript" id="GDScript_hprak"]
+resource_name = "kembali"
+script/source = "extends TextureButton
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	connect(\"pressed\", Callable(self, \"_on_button_pressed\")) # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _on_button_pressed() -> void:
+	get_tree().change_scene_to_file(\"res://pilihlevel.tscn\")
+"
+
+[node name="pilihhuruf" type="Control" unique_id=2020254407]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_jv7di")
+
+[node name="bg" type="TextureRect" parent="." unique_id=319439284]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_1d4m8")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="papanhuruf" type="TextureRect" parent="." unique_id=2082844779]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -571.0
+offset_top = -253.99998
+offset_right = 1156.9409
+offset_bottom = 663.647
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.68, 0.68)
+
+[node name="header" type="Control" parent="papanhuruf" unique_id=890402761]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -679.41174
+offset_top = -71.32352
+offset_right = 679.41174
+offset_bottom = 71.32352
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="papanhuruf/header" unique_id=1987256241]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -677.0
+offset_top = -36.764694
+offset_right = 677.0
+offset_bottom = 36.764694
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+
+[node name="pilihanhuruf" type="Control" parent="papanhuruf" unique_id=1230842583]
+anchors_preset = 0
+offset_bottom = 560.29407
+
+[node name="jawaban1" type="TextureButton" parent="papanhuruf/pilihanhuruf" unique_id=919444934]
+custom_minimum_size = Vector2(180, 220)
+layout_mode = 0
+offset_left = 379.0
+offset_right = 559.0
+offset_bottom = 495.0
+stretch_mode = 6
+
+[node name="jawaban2" type="TextureButton" parent="papanhuruf/pilihanhuruf" unique_id=906987153]
+custom_minimum_size = Vector2(180, 220)
+layout_mode = 0
+offset_left = 589.0
+offset_right = 769.0
+offset_bottom = 495.0
+stretch_mode = 6
+
+[node name="jawaban3" type="TextureButton" parent="papanhuruf/pilihanhuruf" unique_id=1704664413]
+custom_minimum_size = Vector2(180, 220)
+layout_mode = 0
+offset_left = 799.0
+offset_right = 979.0
+offset_bottom = 495.0
+stretch_mode = 6
+
+[node name="kembali" type="TextureButton" parent="." unique_id=1527745366]
+layout_mode = 1
+offset_left = 2.0
+offset_right = 188.0
+offset_bottom = 162.0
+scale = Vector2(0.7, 0.7)
+texture_normal = ExtResource("3_jv7di")
+script = SubResource("GDScript_hprak")
+
+[node name="audio_soal" type="AudioStreamPlayer" parent="." unique_id=618164015]
+
+[node name="audio_salah" type="AudioStreamPlayer" parent="." unique_id=709812126]
+
+[node name="audio_benar" type="AudioStreamPlayer" parent="." unique_id=2011579459]
+
+[node name="popuphasilgame" type="Control" parent="." unique_id=132053838]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="bgpopup" type="TextureRect" parent="popuphasilgame" unique_id=64581967]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="popuphasilgame/bgpopup" unique_id=462800582]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="bintang1" type="TextureRect" parent="popuphasilgame/bgpopup/HBoxContainer" unique_id=2048902730]
+layout_mode = 2
+
+[node name="bintang2" type="TextureRect" parent="popuphasilgame/bgpopup/HBoxContainer" unique_id=699256121]
+layout_mode = 2
+
+[node name="bintang3" type="TextureRect" parent="popuphasilgame/bgpopup/HBoxContainer" unique_id=1990020714]
+layout_mode = 2
+
+[node name="btnkembali" type="TextureButton" parent="popuphasilgame" unique_id=407621579]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="btnlanjut" type="TextureButton" parent="popuphasilgame" unique_id=2111234631]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="popup_feedback" type="Control" parent="." unique_id=871922794]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="gambarfeedback" type="TextureRect" parent="popup_feedback" unique_id=2019370554]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 2
+stretch_mode = 6
+
+[node name="audio_efek" type="AudioStreamPlayer" parent="." unique_id=132087743]
+
+[node name="audio_bintang" type="AudioStreamPlayer" parent="." unique_id=1783942596]
+
+[node name="btn_sound" type="TextureButton" parent="." unique_id=6825067]
+layout_mode = 1
+offset_left = 123.0
+offset_top = 8.000001
+offset_right = 723.0
+offset_bottom = 513.0
+scale = Vector2(0.2, 0.2)
+texture_normal = ExtResource("4_jv7di")
+
+[node name="judul" type="TextureRect" parent="." unique_id=2068202852]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -231.0
+offset_top = 33.0
+offset_right = 587.0
+offset_bottom = 294.0
+grow_horizontal = 2
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("4_fuair")
